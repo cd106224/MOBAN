@@ -8,6 +8,10 @@ target_include_directories(_gtest PRIVATE "${SRC_DIR}/googletest")
 
 add_library(ch_contrib::gtest ALIAS _gtest)
 
+add_library(_gtest_main "${SRC_DIR}/googletest/src/gtest_main.cc")
+set_target_properties(_gtest_main PROPERTIES VERSION "1.0.0")
+target_link_libraries(_gtest_main PUBLIC _gtest)
+
 add_library(_gmock "${SRC_DIR}/googlemock/src/gmock-all.cc")
 set_target_properties(_gmock PROPERTIES VERSION "1.0.0")
 target_compile_definitions (_gmock PUBLIC GTEST_HAS_POSIX_RE=0)
