@@ -15,14 +15,22 @@ else ()
 endif ()
 
 string(CONCAT FORMAT_DIRS
-        "${CMAKE_SOURCE_DIR}/src,"
         "${CMAKE_SOURCE_DIR}/tests,"
 )
 
 add_custom_target(format ${BUILD_SUPPORT_DIR}/run_clang_format.py
         ${CLANG_FORMAT_BIN}
+        ${BUILD_SUPPORT_DIR}/clang_format_exclusions.txt
         --source_dirs
         ${FORMAT_DIRS}
         --fix
+        --quiet
+)
+
+add_custom_target(check-format ${BUILD_SUPPORT_DIR}/run_clang_format.py
+        ${CLANG_FORMAT_BIN}
+        ${BUILD_SUPPORT_DIR}/clang_format_exclusions.txt
+        --source_dirs
+        ${FORMAT_DIRS}
         --quiet
 )
