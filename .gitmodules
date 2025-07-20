@@ -1,0 +1,9 @@
+[submodule "deps/third_party/abseil-cpp"]
+	path = deps/third_party/abseil-cpp
+	url = https://github.com/ClickHouse/abseil-cpp.git
+[submodule "deps/third_party/google-protobuf"]
+	path = deps/third_party/google-protobuf
+	url = https://github.com/ClickHouse/google-protobuf
+[submodule "deps/third_party/googletest"]
+	path = deps/third_party/googletest
+	url = https://github.com/google/googletest.git
