@@ -15,6 +15,7 @@ else ()
 endif ()
 
 string(CONCAT FORMAT_DIRS
+        "${CMAKE_SOURCE_DIR}/deps/base,"
         "${CMAKE_SOURCE_DIR}/tests,"
 )
 
