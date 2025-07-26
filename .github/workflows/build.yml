@@ -11,9 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install dependencies
+      - name: Cache CUDA Toolkit
+        uses: actions/cache@v2
+        with:
+          path: /usr/local/cuda
+          key: ${{ runner.os }}-cuda-11.2
+      - name: Install CUDA Toolkit
         run: |
-          sudo apt-get update
+          sudo apt-get install -y cuda-toolkit-11-2
+          echo "CUDAToolkit_ROOT=/usr/local/cuda" >> $GITHUB_ENV
+          echo "PATH=$PATH:/usr/local/cuda/bin" >> $GITHUB_ENV
       - name: Build and Test
         run: |
           mkdir build
