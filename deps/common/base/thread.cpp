@@ -1,7 +1,5 @@
 #include "thread.h"
 
-#include <exception>
-
 #include "current_thread.h"
 
 Thread::Thread(const std::string& name) : name_(name) {
@@ -22,6 +20,7 @@ void MonitorThread(Thread* thread, const std::function<void()>& func) {
     current_thread::set_thread_name("finished");
   } catch (...) {
     current_thread::set_thread_name("crashed");
+    // TODO: 改成spdlog
     // fprintf(stderr, "unknown exception caught in Thread %s\n",
     // m_name.c_str());
     throw;  // rethrow
