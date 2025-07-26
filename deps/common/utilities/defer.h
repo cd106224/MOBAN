@@ -3,8 +3,8 @@
 #include <utility>
 
 /**
- * @brief 提供了与 go 中的 defer 语义类似功能的实现, 以简化在简单场景下的资源清理,
- * 使用者不必再额外自定义 RAII 对象
+ * @brief 提供了与 go 中的 defer 语义类似功能的实现,
+ * 以简化在简单场景下的资源清理, 使用者不必再额外自定义 RAII 对象
  *
  * @note 与 go 中不同的是, defer 函数在离开当前作用域时被调用, 而非当前函数
  *
@@ -32,39 +32,34 @@
  * ```
  */
 
-namespace dt {
-namespace detail {
 template <typename F>
 class defer {
-public:
-    // 删除 拷贝/移动 构造函数, 否则会导致 cleanup function 被调用多次
-    defer(const defer&)            = delete;
-    defer(defer&&)                 = delete;
-    defer& operator=(const defer&) = delete;
-    defer& operator=(defer&&)      = delete;
+ public:
+  // 删除 拷贝/移动 构造函数, 否则会导致 cleanup function 被调用多次
+  defer(const defer&) = delete;
+  defer(defer&&) = delete;
+  defer& operator=(const defer&) = delete;
+  defer& operator=(defer&&) = delete;
 
-    // construct the object from the given callable
-    explicit defer(F&& f) : cleanup_function_(std::forward<F>(f)) {}
+  // construct the object from the given callable
+  explicit defer(F&& f) : cleanup_function_(std::forward<F>(f)) {}
 
-    // when the object goes out of scope call the cleanup function
-    ~defer() { cleanup_function_(); }
+  // when the object goes out of scope call the cleanup function
+  ~defer() { cleanup_function_(); }
 
-private:
-    F cleanup_function_;
+ private:
+  F cleanup_function_;
 };
-}  // namespace detail
 
 template <typename Function>
-detail::defer<Function> make_defer(Function&& f)
-{
-    return detail::defer{std::forward<Function>(f)};
+detail::defer<Function> make_defer(Function&& f) {
+  return detail::defer{std::forward<Function>(f)};
 }
-}  // namespace dt
 
-#define CONCAT(x, y)        x##y
-#define DEFER_JOIN(x, y)     CONCAT(x, y)
+#define CONCAT(x, y) x##y
+#define DEFER_JOIN(x, y) CONCAT(x, y)
 #define DEFER_UNIQUE_NAME(x) DEFER_JOIN(x, __LINE__)
 
-#define DEFER(lambda__)                                             \
-    [[maybe_unused]] const auto& DEFER_UNIQUE_NAME(_defer_object) = \
-        dt::make_defer([&]() __attribute__((always_inline)) lambda__)
+#define DEFER(lambda__)                                           \
+  [[maybe_unused]] const auto& DEFER_UNIQUE_NAME(_defer_object) = \
+      dt::make_defer([&]() __attribute__((always_inline)) lambda__)

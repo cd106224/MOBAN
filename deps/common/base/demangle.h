@@ -3,7 +3,6 @@
 #include <memory>
 #include <string>
 
-namespace base {
 /**
  * @brief 对 c++ 符号名称去混淆化
  *
@@ -27,4 +26,3 @@ struct FreeingDeleter {
 using DemangleResult = std::unique_ptr<char, FreeingDeleter>;
 
 DemangleResult try_demangle(const char* name);
-}  // namespace base

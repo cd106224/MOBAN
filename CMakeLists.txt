@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.26)
 
-project(MOBAN LANGUAGES C CXX)
+project(MOBAN LANGUAGES C CXX ASM)
 # 检测 GPU 编译环境
 include(cmake/configure_gpu_platform.cmake)
 enable_language(${PLATFORM})
