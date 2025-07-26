@@ -6,8 +6,6 @@ target_include_directories(lib_common
 )
 
 add_headers_and_sources(base_tests tests)
-#string(REPLACE ";" " " base_tests_sources "${base_tests_sources}")
-message(STATUS "_add_gtest called with: ${base_tests_sources}")
 _add_gtest("${base_tests_sources}" LINK_LIBS
         lib_common
         _gtest_main
