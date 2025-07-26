@@ -12,5 +12,5 @@ include(cmake/gtest_helpers.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_subdirectory(deps/base)
+add_subdirectory(deps/common)
 add_subdirectory(deps/third_party)
