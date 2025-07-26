@@ -10,7 +10,15 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'  # 关键：递归初始化所有子模块
+          fetch-depth: 0  # 获取完整历史（某些子模块需要）
+      - name: Update submodules
+        run: |
+           git submodule update --init --recursive
+           echo "Submodules updated:"
+           git submodule status
       - name: Set up CUDA repository
         run: |
           # 下载并配置 CUDA 软件源
