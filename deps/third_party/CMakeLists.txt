@@ -28,4 +28,6 @@ endfunction()
 add_thirdparty(abseil-cpp-cmake abseil-cpp)
 add_thirdparty(googletest-cmake googletest)
 add_thirdparty(google-protobuf-cmake google-protobuf)
-
+add_thirdparty(zlib-ng-cmake zlib-ng)
+add_thirdparty(zstd-cmake zstd)
+add_thirdparty(boost-cmake boost)
