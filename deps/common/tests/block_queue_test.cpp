@@ -1,11 +1,11 @@
-#include "base/blocking_queue.h"
-
 #include <gtest/gtest.h>
 
 #include <atomic>
 #include <chrono>
 #include <thread>
 #include <vector>
+
+#include "base/blocking_queue.h"
 
 using namespace std::chrono_literals;
 
