@@ -6,8 +6,11 @@ include(cmake/configure_gpu_platform.cmake)
 enable_language(${PLATFORM})
 
 include(cmake/clang_format.cmake)
+include(cmake/glob_source.cmake)
 include(cmake/sanitize.cmake)
+include(cmake/gtest_helpers.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_subdirectory(deps/base)
 add_subdirectory(deps/third_party)

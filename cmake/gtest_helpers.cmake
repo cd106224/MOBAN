@@ -4,7 +4,7 @@ include(GoogleTest)
 add_custom_target(build-tests COMMAND ${CMAKE_CTEST_COMMAND} --show-only)
 add_custom_target(check-tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 
-function(_add_gtest TEST_SOURCES TEST_LIBRARIES)
+function(_add_gtest TEST_SOURCES)
     foreach (test_source ${TEST_SOURCES})
         get_filename_component(test_filename ${test_source} NAME)
         string(REPLACE ".cpp" "" test_name ${test_filename})
@@ -21,7 +21,7 @@ function(_add_gtest TEST_SOURCES TEST_LIBRARIES)
                 TIMEOUT 120
         )
         target_link_libraries(${test_name} PRIVATE
-                ${TEST_LIBRARIES}
+                ${ARGN}
                 _gtest_main
                 _gtest
                 pthread
