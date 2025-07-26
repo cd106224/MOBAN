@@ -8,17 +8,25 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
+      - name: Set up CUDA repository
+        run: |
+          # 下载并配置 CUDA 软件源
+          wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+          sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+          sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
+          sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /"
       - name: Cache CUDA Toolkit
         uses: actions/cache@v3
         with:
           path: /usr/local/cuda
-          key: ${{ runner.os }}-cuda-11.2
+          key: ${{ runner.os }}-cuda-12.5
       - name: Install CUDA Toolkit
         run: |
-          sudo apt-get install -y cuda-toolkit-11-2
+          sudo apt-get update
+          sudo apt-get install -y cuda-toolkit-12-5
           echo "CUDAToolkit_ROOT=/usr/local/cuda" >> $GITHUB_ENV
           echo "PATH=$PATH:/usr/local/cuda/bin" >> $GITHUB_ENV
       - name: Build and Test
