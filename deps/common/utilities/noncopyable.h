@@ -1,0 +1,28 @@
+#pragma once
+
+namespace dt {
+
+class noncopyable {
+public:
+    noncopyable(const noncopyable&)           = delete;
+    noncopyable operator=(const noncopyable&) = delete;
+
+protected:
+    noncopyable()          = default;
+    virtual ~noncopyable() = default;
+};
+
+// Macros to disable copying and moving
+#define DISALLOW_COPY(cname)                 \
+    cname(const cname&)            = delete; \
+    cname& operator=(const cname&) = delete;
+
+#define DISALLOW_MOVE(cname)            \
+    cname(cname&&)            = delete; \
+    cname& operator=(cname&&) = delete;
+
+#define DISALLOW_COPY_AND_MOVE(cname) \
+    DISALLOW_COPY(cname);             \
+    DISALLOW_MOVE(cname);
+
+}  // namespace dt
