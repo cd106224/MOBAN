@@ -2,6 +2,8 @@
 
 #include <sys/syscall.h>
 
+#include <cstdio>
+
 #include "thread_local.h"
 
 namespace current_thread {
@@ -12,6 +14,7 @@ inline pid_t gettid() noexcept {
 struct Cache {
   pid_t tid{};
   char tidStr[32]{};
+  const char* threadName = "unKnown";
   Cache() {
     tid = gettid();
     std::snprintf(tidStr, sizeof(tidStr), "%5d ", tid);
@@ -24,4 +27,8 @@ inline ThreadLocal<Cache>& cache() noexcept {
 }  // namespace detail
 inline pid_t id() noexcept { return detail::cache()->tid; }
 inline bool isMain() noexcept { return id() == detail::gettid(); }
+void set_thread_name(const char* name) noexcept {
+  detail::cache()->threadName = name;
+}
+const char* thread_name() noexcept { return detail::cache()->threadName; }
 }  // namespace current_thread
