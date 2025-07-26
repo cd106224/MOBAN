@@ -22,7 +22,7 @@ function(rapids_cuda_detect_architectures possible_archs_var gpu_archs)
 
     # Unset this first in case it's set to <empty_string> Which can happen inside rapids
     set(CMAKE_CUDA_ARCHITECTURES OFF)
-    set(__gpu_archs ${${possible_archs_var}})
+    set(__gpu_archs ${possible_archs_var})
 
     set(eval_file ${CMAKE_CURRENT_BINARY_DIR}/eval_gpu_archs.cu)
     set(eval_exe ${CMAKE_CURRENT_BINARY_DIR}/eval_gpu_archs)
