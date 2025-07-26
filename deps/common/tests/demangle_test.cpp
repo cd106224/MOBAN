@@ -2,8 +2,6 @@
 
 #include <gtest/gtest.h>
 
-namespace base {
-
 TEST(DemangleTest, DemangleTest) {
   // 测试正常的C++符号名称解析
   int status = 0;
@@ -29,5 +27,3 @@ TEST(DemangleTest, TryDemangleTest) {
   result = try_demangle("invalid_symbol_name");
   EXPECT_FALSE(result);
 }
-
-}  // namespace base

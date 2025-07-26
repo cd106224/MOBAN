@@ -5,6 +5,14 @@ add_custom_target(build-tests COMMAND ${CMAKE_CTEST_COMMAND} --show-only)
 add_custom_target(check-tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 
 function(_add_gtest TEST_SOURCES)
+    set(DEFAULT_LIBS _gtest_main _gtest pthread)
+    set(options "")
+    set(one_value_args "")
+    set(multi_value_args LINK_LIBS)
+    cmake_parse_arguments(_add_gtest "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
+    if (NOT _add_gtest_LINK_LIBS)
+        set(_add_gtest_LINK_LIBS ${DEFAULT_LIBS})
+    endif ()
     foreach (test_source ${TEST_SOURCES})
         get_filename_component(test_filename ${test_source} NAME)
         string(REPLACE ".cpp" "" test_name ${test_filename})
@@ -21,10 +29,7 @@ function(_add_gtest TEST_SOURCES)
                 TIMEOUT 120
         )
         target_link_libraries(${test_name} PRIVATE
-                ${ARGN}
-                _gtest_main
-                _gtest
-                pthread
+                ${_add_gtest_LINK_LIBS}
         )
         set_target_properties(${test_name}
                 PROPERTIES
