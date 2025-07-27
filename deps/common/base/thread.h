@@ -21,13 +21,14 @@ class Thread {
   }
   void detach() const { thread_->detach(); }
   const std::string& name() const { return name_; }
+  int64_t tid() const { return tid_; }
 
  private:
-  Thread(const std::string& name);
+  explicit Thread(const std::string& name);
   static Thread StartThread(const std::string& name,
                             const std::function<void()>& func);
   static void MonitorThread(Thread* thread, const std::function<void()>& func);
   std::unique_ptr<std::thread> thread_;
   const std::string name_;
-  pid_t tid_;
+  pid_t tid_{-2};
 };
