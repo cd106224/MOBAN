@@ -10,13 +10,19 @@ enum LoggerType {
   NUM_LOGGERS
 };
 
+struct OnceRegister {
+  OnceRegister();
+};
+
 spdlog::logger* get_logger(LoggerType type);
 void register_logger(LoggerType type, std::shared_ptr<spdlog::logger> logger);
 void set_level(spdlog::level::level_enum level);
 void flush();
+void log_init();
 
 template <typename... Args>
 void trace(spdlog::source_loc loc, Args&&... args) {
+  log_init();
   get_logger(LoggerType::CONSOLE)
       ->log(loc, spdlog::level::trace, std::forward<Args>(args)...);
   get_logger(LoggerType::RUNTIME)
@@ -25,6 +31,7 @@ void trace(spdlog::source_loc loc, Args&&... args) {
 
 template <typename... Args>
 void debug(spdlog::source_loc loc, Args&&... args) {
+  log_init();
   get_logger(LoggerType::CONSOLE)
       ->log(loc, spdlog::level::debug, std::forward<Args>(args)...);
   get_logger(LoggerType::RUNTIME)
@@ -33,6 +40,7 @@ void debug(spdlog::source_loc loc, Args&&... args) {
 
 template <typename... Args>
 void info(spdlog::source_loc loc, Args&&... args) {
+  log_init();
   get_logger(LoggerType::CONSOLE)
       ->log(loc, spdlog::level::info, std::forward<Args>(args)...);
   get_logger(LoggerType::RUNTIME)
@@ -41,6 +49,7 @@ void info(spdlog::source_loc loc, Args&&... args) {
 
 template <typename... Args>
 void warn(spdlog::source_loc loc, Args&&... args) {
+  log_init();
   get_logger(LoggerType::CONSOLE)
       ->log(loc, spdlog::level::warn, std::forward<Args>(args)...);
   get_logger(LoggerType::RUNTIME)
@@ -49,6 +58,7 @@ void warn(spdlog::source_loc loc, Args&&... args) {
 
 template <typename... Args>
 void error(spdlog::source_loc loc, Args&&... args) {
+  log_init();
   get_logger(LoggerType::CONSOLE)
       ->log(loc, spdlog::level::err, std::forward<Args>(args)...);
   get_logger(LoggerType::RUNTIME)
@@ -57,6 +67,7 @@ void error(spdlog::source_loc loc, Args&&... args) {
 
 template <typename... Args>
 void fatal(spdlog::source_loc loc, Args&&... args) {
+  log_init();
   get_logger(LoggerType::CONSOLE)
       ->log(loc, spdlog::level::critical, std::forward<Args>(args)...);
   get_logger(LoggerType::RUNTIME)

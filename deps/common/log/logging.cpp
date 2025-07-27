@@ -46,7 +46,8 @@ void flush() {
   }
 }
 
-void clean_logfiles(const std::string& directory, const std::size_t max_files,
+void clean_logfiles(
+    const std::string& directory, const std::size_t max_files,
     const std::function<bool(std::string_view)>& is_file_needed) {
   std::filesystem::path dir{directory};
   if (!std::filesystem::is_directory(dir)) return;
