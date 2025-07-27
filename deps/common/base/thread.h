@@ -27,7 +27,7 @@ class Thread {
   explicit Thread(const std::string& name);
   static Thread StartThread(const std::string& name,
                             const std::function<void()>& func);
-  static void MonitorThread(Thread* thread, const std::function<void()>& func);
+  static void MonitorThread(const Thread* thread, const std::function<void()>& func);
   std::unique_ptr<std::thread> thread_;
   const std::string name_;
   pid_t tid_{-2};
