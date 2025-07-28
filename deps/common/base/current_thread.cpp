@@ -4,14 +4,12 @@
 #include <windows.h>
 #else
 #include <sys/syscall.h>
+#include "unistd.h"
 #endif
 
 #include <cinttypes>
 #include <cstdio>
 #include <cstring>
-
-#include "thread_local.h"
-#include "unistd.h"
 
 namespace current_thread {
 namespace detail {
