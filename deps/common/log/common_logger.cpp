@@ -1,5 +1,9 @@
 #include <spdlog/async.h>
+#ifdef _WIN32
+#include <spdlog/sinks/wincolor_sink.h>
+#else
 #include <spdlog/sinks/ansicolor_sink.h>
+#endif
 #include <spdlog/sinks/daily_file_sink.h>
 
 #include "logging.h"
@@ -17,9 +21,14 @@ OnceRegister::OnceRegister() {
   constexpr const char* runtime_pattern = "%Y-%m-%d %H:%M:%S.%e %t %^%-5l%$ %v";
 #endif
   int save_days = 30;
+#ifdef _WIN32
+  auto console_sink =
+      std::make_shared<spdlog::sinks::wincolor_stderr_sink_mt>();
+#else
   auto console_sink =
       std::make_shared<spdlog::sinks::ansicolor_stderr_sink_mt>();
   console_sink->set_color(spdlog::level::debug, console_sink->reset);
+#endif
   auto console_logger =
       std::make_shared<spdlog::logger>("console_" + id, console_sink);
   console_logger->set_pattern(runtime_pattern);
