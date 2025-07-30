@@ -52,8 +52,8 @@ class defer {
 };
 
 template <typename Function>
-detail::defer<Function> make_defer(Function&& f) {
-  return detail::defer{std::forward<Function>(f)};
+defer<Function> make_defer(Function&& f) {
+  return defer{std::forward<Function>(f)};
 }
 
 #define CONCAT(x, y) x##y
@@ -62,4 +62,4 @@ detail::defer<Function> make_defer(Function&& f) {
 
 #define DEFER(lambda__)                                           \
   [[maybe_unused]] const auto& DEFER_UNIQUE_NAME(_defer_object) = \
-      dt::make_defer([&]() __attribute__((always_inline)) lambda__)
+      make_defer([&]() __attribute__((always_inline)) lambda__)
