@@ -25,3 +25,6 @@
 [submodule "deps/third_party/rapidjson"]
 	path = deps/third_party/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "deps/third_party/curl"]
+	path = deps/third_party/curl
+	url = https://github.com/curl/curl.git
