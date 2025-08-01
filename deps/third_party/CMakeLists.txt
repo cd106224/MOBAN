@@ -34,4 +34,8 @@ add_thirdparty(boost-cmake boost)
 add_thirdparty(fmt-cmake fmt)
 add_thirdparty(spdlog-cmake spdlog)
 add_thirdparty(rapidjson-cmake rapidjson)
+add_thirdparty(openssl-cmake openssl)
+add_thirdparty(c-ares-cmake c-ares)
+
+set(ENABLE_CURL 1)
 add_thirdparty(curl-cmake curl)
