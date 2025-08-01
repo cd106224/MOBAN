@@ -25,3 +25,12 @@
 [submodule "deps/third_party/rapidjson"]
 	path = deps/third_party/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "deps/third_party/curl"]
+	path = deps/third_party/curl
+	url = https://github.com/curl/curl.git
+[submodule "deps/third_party/openssl"]
+	path = deps/third_party/openssl
+	url = https://github.com/ClickHouse/openssl.git
+[submodule "deps/third_party/c-ares"]
+	path = deps/third_party/c-ares
+	url = https://github.com/c-ares/c-ares.git
