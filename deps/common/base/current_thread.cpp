@@ -27,7 +27,7 @@ struct Cache {
   char threadName[32] = "unKnown";
   Cache() {
     tid = gettid();
-    std::snprintf(tidStr, sizeof(tidStr), "%6d" PRId64, tid);
+    std::snprintf(tidStr, sizeof(tidStr), "%6ld" PRId64, tid);
   }
 };
 inline Cache& cache() noexcept {

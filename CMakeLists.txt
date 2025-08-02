@@ -12,9 +12,13 @@ include(cmake/find_thread.cmake)
 include(cmake/glob_source.cmake)
 include(cmake/sanitize.cmake)
 include(cmake/gtest_helpers.cmake)
+include(cmake/verion.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 add_library(global-group INTERFACE)
+
+message(STATUS "MOBAN: Build ${MOBAN_BACKEND_VERSION}")
+add_definitions(-D_BACKEND_VERSION="${MOBAN_BACKEND_VERSION}")
 
 add_subdirectory(deps/common)
 add_subdirectory(deps/third_party)
