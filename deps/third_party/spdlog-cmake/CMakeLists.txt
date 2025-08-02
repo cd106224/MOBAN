@@ -10,7 +10,7 @@ set(SRCS
         ${SPDLOG_DIR}/src/stdout_sinks.cpp
 )
 
-add_library(_spdlog ${SRCS})
+add_library(_spdlog STATIC ${SRCS})
 add_library(ch_contrib::spdlog ALIAS _spdlog)
 
 target_compile_definitions(_spdlog PUBLIC SPDLOG_COMPILED_LIB)

@@ -22,3 +22,4 @@ add_definitions(-D_BACKEND_VERSION="${MOBAN_BACKEND_VERSION}")
 
 add_subdirectory(deps/common)
 add_subdirectory(deps/third_party)
+add_subdirectory(plugins)
