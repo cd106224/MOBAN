@@ -14,7 +14,7 @@ include(cmake/sanitize.cmake)
 include(cmake/gtest_helpers.cmake)
 include(cmake/verion.cmake)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 add_library(global-group INTERFACE)
 
 message(STATUS "MOBAN: Build ${MOBAN_BACKEND_VERSION}")

@@ -30,4 +30,13 @@ std::string InetAddress::toIpPort() const {
   sockets::toIpPort(buf, sizeof(buf), addr_);
   return buf;
 }
+
+const struct sockaddr_in &InetAddress::getSockAddrInet() const { return addr_; }
+
+void InetAddress::setSockAddrInet(const sockaddr_in &addr) { addr_ = addr; }
+
+uint32_t InetAddress::ipNetEndian() const { return addr_.sin_addr.s_addr; }
+
+uint16_t InetAddress::portNetEndian() const { return addr_.sin_port; }
+
 }  // namespace Muduo
