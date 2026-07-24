@@ -15,7 +15,7 @@ class Thread {
   Thread(Thread&&) = default;
   Thread& operator=(const Thread&) = delete;
   Thread& operator=(Thread&&) = delete;
-  void join() const {
+  void join() {
     if (thread_->joinable()) {
       thread_->join();
     }

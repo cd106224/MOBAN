@@ -21,7 +21,7 @@ class Timestamp : boost::totally_ordered1<Timestamp> {
 
   int64_t microSecondsSinceEpoch() const;
 
-  time_t secondsSicneEpoch() const;
+  time_t secondsSinceEpoch() const;
 
   /**
    * @brief 获取当前时间

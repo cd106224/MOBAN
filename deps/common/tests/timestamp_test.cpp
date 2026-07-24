@@ -25,7 +25,7 @@ TEST(TimestampTest, ParameterizedConstructor) {
   EXPECT_TRUE(ts.valid());
   EXPECT_EQ(ts.microSecondsSinceEpoch(), 1234567890123);
 
-  time_t seconds = ts.secondsSicneEpoch();
+  time_t seconds = ts.secondsSinceEpoch();
   EXPECT_EQ(seconds, 1234567);
 }
 

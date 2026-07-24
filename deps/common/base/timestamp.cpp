@@ -44,7 +44,7 @@ int64_t Timestamp::microSecondsSinceEpoch() const {
   return m_microSecondsSinceEpoch;
 }
 
-time_t Timestamp::secondsSicneEpoch() const {
+time_t Timestamp::secondsSinceEpoch() const {
   return static_cast<time_t>(m_microSecondsSinceEpoch / kMicroSecondsPerSecond);
 }
 
