@@ -32,10 +32,12 @@ class ThreadPool {
  protected:
   void runInThread();
 
-  std::mutex mutex_;
-  std::condition_variable cond_;
   std::string name_;
   std::vector<std::shared_ptr<Thread>> threads_;
   std::deque<Task> queue_;
   std::atomic<bool> running_;
+
+private:
+  std::mutex mutex_;
+  std::condition_variable cond_;
 };

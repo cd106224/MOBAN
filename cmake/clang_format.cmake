@@ -17,6 +17,7 @@ endif ()
 string(CONCAT FORMAT_DIRS
         "${CMAKE_SOURCE_DIR}/deps/common,"
         "${CMAKE_SOURCE_DIR}/tests,"
+        "${CMAKE_SOURCE_DIR}/plugins,"
 )
 
 add_custom_target(format ${BUILD_SUPPORT_DIR}/run_clang_format.py

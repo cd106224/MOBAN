@@ -51,7 +51,7 @@ class BlockingQueue {
   // 非阻塞 try_take
   std::optional<T> try_take() {
     std::lock_guard<std::mutex> lock(mtx_);
-    if (q_.empty() || done_) return std::nullopt;
+    if (q_.empty()) return std::nullopt;
 
     T value = std::move(q_.front());
     q_.pop();

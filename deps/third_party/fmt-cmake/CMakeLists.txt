@@ -22,6 +22,6 @@ set(SRCS
         ${FMT_SOURCE_DIR}/include/fmt/xchar.h
 )
 
-add_library(_fmt ${SRCS})
+add_library(_fmt STATIC ${SRCS})
 target_include_directories(_fmt SYSTEM PUBLIC ${FMT_SOURCE_DIR}/include)
 add_library(ch_contrib::fmt ALIAS _fmt)
