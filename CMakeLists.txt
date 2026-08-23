@@ -7,6 +7,7 @@ include(cmake/configure_gpu_platform.cmake)
 enable_language(${PLATFORM})
 
 include(cmake/clang_format.cmake)
+include(cmake/check_unimplemented.cmake)
 include(cmake/arch.cmake)
 include(cmake/find_thread.cmake)
 include(cmake/glob_source.cmake)
