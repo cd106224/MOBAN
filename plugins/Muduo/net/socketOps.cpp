@@ -80,13 +80,13 @@ int accept(int sockfd, struct sockaddr_in *addr) {
         // expected errors
         errno = savedErrno;
         break;
-      case EBADF:       // 无效的文件描述符
-      case EFAULT:      // 地址参数无效,通常是内存管理错误
-      case EINVAL:      // 套接字状态无效,通常是套接字配置错误
-      case ENFILE:      // 系统级文件描述符达到上限
-      case ENOBUFS:     // 内核缓冲区不足,通常是系统资源耗尽
-      case ENOMEM:      // 内存不足
-      case ENOTSOCK:    // 文件不是套接字
+      case EBADF:     // 无效的文件描述符
+      case EFAULT:    // 地址参数无效,通常是内存管理错误
+      case EINVAL:    // 套接字状态无效,通常是套接字配置错误
+      case ENFILE:    // 系统级文件描述符达到上限
+      case ENOBUFS:   // 内核缓冲区不足,通常是系统资源耗尽
+      case ENOMEM:    // 内存不足
+      case ENOTSOCK:  // 文件不是套接字
       case EOPNOTSUPP:  // 套接字类型不支持accept操作,套接字类型配置错误
         // unexpected errors
         LOG_ERROR("unexpected error of ::accept {}", savedErrno);

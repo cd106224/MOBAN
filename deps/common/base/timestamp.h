@@ -36,7 +36,8 @@ class Timestamp : boost::totally_ordered1<Timestamp> {
   static Timestamp invalid();
 
  public:
-  static constexpr int kMicroSecondsPerSecond = 1000 * 1000;  ///< 一秒对应的微秒数
+  static constexpr int kMicroSecondsPerSecond =
+      1000 * 1000;  ///< 一秒对应的微秒数
  protected:
   int64_t m_microSecondsSinceEpoch;  ///< 微秒数
 };

@@ -37,7 +37,7 @@ class ThreadPool {
   std::deque<Task> queue_;
   std::atomic<bool> running_;
 
-private:
+ private:
   std::mutex mutex_;
   std::condition_variable cond_;
 };
