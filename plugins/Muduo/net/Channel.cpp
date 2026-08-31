@@ -4,6 +4,7 @@
 
 #include <cassert>
 
+#include "EventLoop.h"
 #include "base/timestamp.h"
 #include "log/logging.h"
 
@@ -92,12 +93,10 @@ EventLoop* Channel::ownerLoop() { return loop_; }
 // 调用这个函数之前确保调用了disableAll
 void Channel::remove() {
   assert(isNoneEvent());
-  // TODO:GG
+  loop_->removeChannel(this);
 }
 
-void Channel::update() {
-  // TODO:GG
-}
+void Channel::update() { loop_->updateChanel(this); }
 
 void Channel::handleEventWithGuard(Timestamp receiveTime) {
   eventHandling_ = true;

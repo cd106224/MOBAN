@@ -45,6 +45,7 @@ EventLoop* EventLoop::getEventLoopOfCurrentThread() {
 EventLoop::EventLoop()
     : looping_(false),
       quit_(false),
+      started_(false),
       eventHandling_(false),
       callingPendingFunctors_(false),
       threadId_(current_thread::id()),
@@ -79,7 +80,12 @@ void EventLoop::loop() {
   assert(!looping_);
   assertInLoopThread();
   looping_ = true;
-  quit_ = false;
+  // 首次进入不重置quit_,否则进入loop()前被调用的quit()(比如EventLoopThread析构)会被吞掉,导致循环永不退出
+  // 重新进入时才清除上一次的quit请求,以支持同一EventLoop被多次loop()
+  if (started_) {
+    quit_ = false;
+  }
+  started_ = true;
   LOG_INFO("EventLoop {} start looping", static_cast<const void*>(this));
   while (!quit_) {
     activeChannels_.clear();

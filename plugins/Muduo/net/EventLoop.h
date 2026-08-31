@@ -53,6 +53,7 @@ class EventLoop : boost::noncopyable {
   using ChannelList = std::vector<Channel*>;
   std::atomic<bool> looping_;
   std::atomic<bool> quit_;
+  bool started_;  // loop()是否曾被进入过,用于区分首次进入(不重置quit_)和重新进入(重置)
   bool eventHandling_;
   std::atomic<bool> callingPendingFunctors_;
   const pid_t threadId_;
