@@ -1,8 +1,8 @@
 #include "EventLoop.h"
 
-#include <signal.h>
 #include <sys/eventfd.h>
 
+#include <csignal>
 #include <cstdlib>
 #include <mutex>
 

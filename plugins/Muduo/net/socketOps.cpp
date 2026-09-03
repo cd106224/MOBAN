@@ -116,4 +116,58 @@ void shutdownWrite(int sockfd) {
     LOG_ERROR("sockets::shutdownWrite");
   }
 }
+
+int connect(int sockfd, const struct sockaddr_in& addr) {
+  return ::connect(sockfd, reinterpret_cast<const sockaddr*>(&addr),
+                   sizeof(addr));
+}
+
+int getSocketError(int sockfd) {
+  int optval;
+  socklen_t optlen = sizeof(optval);
+  if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0) {
+    return errno;
+  } else {
+    return optval;
+  }
+}
+
+// 自连接是指(sourceIP, sourcePort) = (destIP, destPort)
+// 自连接发生的原因:
+// 客户端在发起connect的时候，没有bind(2)
+// 客户端与服务器端在同一台机器，即sourceIP = destIP，
+// 服务器尚未开启，即服务器还没有在destPort端口上处于监听
+// 就有可能出现自连接，这样，服务器也无法启动了
+
+bool isSelfConnect(int sockfd) {
+  struct sockaddr_in localaddr = getLocalAddr(sockfd);
+  struct sockaddr_in peeraddr = getPeerAddr(sockfd);
+  return localaddr.sin_addr.s_addr == peeraddr.sin_addr.s_addr &&
+         localaddr.sin_port == peeraddr.sin_port;
+}
+
+sockaddr_in getLocalAddr(int sockfd) {
+  sockaddr_in localaddr{};
+  memset(&localaddr, 0, sizeof(localaddr));
+  socklen_t addrlen = sizeof(localaddr);
+  if (::getsockname(sockfd, reinterpret_cast<sockaddr*>(&localaddr), &addrlen) <
+      0) {
+    LOG_ERROR("sockets::getLocalAddr");
+    exit(EXIT_FAILURE);
+  }
+  return localaddr;
+}
+
+sockaddr_in getPeerAddr(int sockfd) {
+  sockaddr_in peeraddr{};
+  memset(&peeraddr, 0, sizeof(peeraddr));
+  socklen_t addrlen = sizeof(peeraddr);
+  if (::getpeername(sockfd, reinterpret_cast<sockaddr*>(&peeraddr), &addrlen) <
+      0) {
+    LOG_ERROR("sockets::getPeerAddr");
+    exit(EXIT_FAILURE);
+  }
+  return peeraddr;
+}
+
 }  // namespace Muduo::sockets

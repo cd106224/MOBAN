@@ -21,7 +21,7 @@ void Socket::bindAddress(const InetAddress& localaddr) const {
 void Socket::listen() const { sockets::listenOrDie(sockfd_); }
 
 int Socket::accept(InetAddress* peerAddr) const {
-  struct sockaddr_in addr {};
+  struct sockaddr_in addr{};
   memset(&addr, 0, sizeof(addr));
   const auto connfd = sockets::accept(sockfd_, &addr);
   if (connfd >= 0) {
