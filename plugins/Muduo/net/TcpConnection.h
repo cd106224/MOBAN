@@ -31,6 +31,7 @@ class TcpConnection : public boost::noncopyable,
   void send(std::string& message);
   void send(Buffer* message);
   void shutdown();
+  void forceClose();
   void setTcpNoDelay(bool on);
   void setContext(const std::any& context);
   const std::any& getContext() const;
@@ -51,6 +52,7 @@ class TcpConnection : public boost::noncopyable,
   void handleRead(Timestamp receiveTime);
   void handleWrite();
   void handleClose();
+  void forceCloseInLoop();
   void handleError();
   void sendInLoopByString(const std::string& message);
   void sendInLoop(const void* message, size_t len);

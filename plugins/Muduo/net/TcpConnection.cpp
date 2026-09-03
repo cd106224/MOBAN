@@ -114,8 +114,9 @@ void TcpConnection::handleWrite() {
         LOG_INFO("I am going to write more data");
       }
     } else {
+      // 写失败(如对端RST导致的EPIPE)只影响本连接,不应终止整个进程;
+      // 连接会在随后读端事件的handleClose中被回收
       LOG_ERROR("TcpConnection::handleWrite");
-      exit(EXIT_FAILURE);
     }
   } else {
     LOG_INFO("Connection fd= {} is down,no more writing", channel_->fd());
@@ -200,6 +201,7 @@ void TcpConnection::sendInLoop(const void* message, size_t len) {
   loop_->assertInLoopThread();
   ssize_t nwrote = 0;
   size_t remaining = len;
+  bool faultError = false;  // 写失败(对端已断开)时置位,不再缓冲剩余数据
   if (state_ == KDisconnected) {
     LOG_ERROR("disconnected,give up writing");
     return;
@@ -217,14 +219,17 @@ void TcpConnection::sendInLoop(const void* message, size_t len) {
       nwrote = 0;
       if (errno != EWOULDBLOCK) {
         LOG_ERROR("TcpConnection::sendInLoop");
-        exit(EXIT_FAILURE);
+        // 写失败(对端RST/断开)只影响本连接,不终止进程;丢弃本次未写完的数据
+        if (errno == EPIPE || errno == ECONNRESET) {
+          faultError = true;
+        }
       }
     }
   }
   assert(remaining <= len);
   // 没有错误,并且还有未写完的少数据(说明内核发送缓冲区满,要将未写完的数据添加到output
-  // buffer中)
-  if (remaining > 0) {
+  // buffer中);faultError时连接已不可写,不再把剩余数据挂到缓冲
+  if (!faultError && remaining > 0) {
     LOG_INFO("I am going to write more data");
     size_t oldLen = outputBuffer_.readableBytes();
     // 如果超过highWriteMark,回调m_highWaterMarkCallback
@@ -251,6 +256,23 @@ void TcpConnection::shutdownInLoop() {
   loop_->assertInLoopThread();
   if (!channel_->isWriting()) {
     socket_->shutdownWrite();
+  }
+}
+
+// 线程安全,可以跨线程调用
+// 强制关闭连接:用于连接只剩最后一个引用(TcpClient析构)时,确保走完
+// handleClose->closeCallback->removeChannel的完整回收流程,而不是裸析构
+void TcpConnection::forceClose() {
+  if (state_ == KConnected || state_ == KDisconnecting) {
+    setState(KDisconnecting);
+    loop_->queueInLoop([self = shared_from_this()] { self->forceCloseInLoop(); });
+  }
+}
+
+void TcpConnection::forceCloseInLoop() {
+  loop_->assertInLoopThread();
+  if (state_ == KConnected || state_ == KDisconnecting) {
+    handleClose();  // 模拟读到EOF,触发统一的关闭流程
   }
 }
 

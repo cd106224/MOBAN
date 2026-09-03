@@ -142,21 +142,21 @@ int8_t Buffer::readInt_8() {
 }
 
 int32_t Buffer::peekInt32() {
-  assert(readableBytes() > sizeof(int32_t));
+  assert(readableBytes() >= sizeof(int32_t));
   uint32_t be32 = 0;
   memcpy(&be32, peek(), sizeof(be32));
   return static_cast<int32_t>(ntohl(be32));
 }
 
 int16_t Buffer::peekInt16() {
-  assert(readableBytes() > sizeof(int16_t));
+  assert(readableBytes() >= sizeof(int16_t));
   uint16_t be16 = 0;
   memcpy(&be16, peek(), sizeof(be16));
   return static_cast<int16_t>(ntohs(be16));
 }
 
 int8_t Buffer::peekInt8() {
-  assert(readableBytes() > sizeof(int8_t));
+  assert(readableBytes() >= sizeof(int8_t));
   int8_t x = *peek();
   return x;
 }

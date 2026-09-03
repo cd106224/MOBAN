@@ -23,10 +23,11 @@ void setNonblockAndCloseOnExec(int sockfd) {
   int ret = ::fcntl(sockfd, F_SETFL, flags);
   (void)ret;
 
-  // close-on-exec
-  flags = ::fcntl(sockfd, F_GETFL, 0);
-  flags |= O_CLOEXEC;
-  ret = ::fcntl(sockfd, F_SETFL, flags);
+  // close-on-exec: FD_CLOEXEC 属于文件描述符标志,只能通过 F_GETFD/F_SETFD 设置,
+  // 用 F_SETFL 传入 O_CLOEXEC 会被内核静默忽略
+  flags = ::fcntl(sockfd, F_GETFD, 0);
+  flags |= FD_CLOEXEC;
+  ret = ::fcntl(sockfd, F_SETFD, flags);
   (void)ret;
 }
 
@@ -77,9 +78,8 @@ void listenOrDie(int sockfd) {
 int accept(int sockfd, struct sockaddr_in* addr) {
   socklen_t addrlen = sizeof(*addr);
   int connfd = ::accept(sockfd, reinterpret_cast<sockaddr*>(addr), &addrlen);
-  setNonblockAndCloseOnExec(connfd);
   if (connfd < 0) {
-    int savedErrno = errno;
+    int savedErrno = errno;  // 必须先于后续任何可能改动errno的调用保存
     LOG_ERROR("socket::accept");
     switch (savedErrno) {
       case EAGAIN:        // 当前没有可用的连接请求
@@ -107,6 +107,9 @@ int accept(int sockfd, struct sockaddr_in* addr) {
         exit(EXIT_FAILURE);
       }
     }
+  } else {
+    // 只对成功accept的连接设置非阻塞,失败时connfd==-1不能调用fcntl
+    setNonblockAndCloseOnExec(connfd);
   }
   return connfd;
 }

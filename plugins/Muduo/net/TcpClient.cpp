@@ -5,9 +5,13 @@
 
 namespace Muduo {
 namespace {
+using ConnectorPtr = std::shared_ptr<Connector>;
 void _removeConnection(EventLoop* loop, const TcpConnectionPtr& conn) {
   loop->runInLoop(std::bind(&TcpConnection::connnectDestroyed, conn));
 }
+// 函数体为空,仅借参数持有Connector的shared_ptr引用;
+// 搭配runAfter(1)让连接在TcpClient析构后延迟释放
+void _removeConnector(const ConnectorPtr&) {}
 }  // namespace
 
 TcpClient::TcpClient(EventLoop* loop, const InetAddress& serverAddr,
@@ -26,18 +30,29 @@ TcpClient::TcpClient(EventLoop* loop, const InetAddress& serverAddr,
 
 TcpClient::~TcpClient() {
   TcpConnectionPtr conn;
+  bool unique = false;
   {
     std::lock_guard lock(mutex_);
+    unique = connection_.unique();
     conn = connection_;
   }
   if (conn) {
+    // 连接后续关闭时不再回调到本对象(TcpClient正在析构),所以替换成与this无关的closeCallback
     // FIXME: not 100% safe, if we are in different thread
     CloseCallback cb =
         std::bind(_removeConnection, loop_, std::placeholders::_1);
     loop_->runInLoop(std::bind(&TcpConnection::setCloseCallback, conn, cb));
+    // 若连接已无其他引用,主动forceClose触发完整回收(handleClose->closeCallback->
+    // removeChannel),否则conn随本对象析构裸销毁,Channel会悬垂在poller里
+    if (unique) {
+      conn->forceClose();
+    }
   } else {
     // 这种情况,说明connector处于未连接状态,将connector_停止
     connector_->stop();
+    // connector的stopInLoop/resetChannel是以裸this排队到loop里的,若本析构后connector
+    // 立即释放会悬垂;延迟1s再释放connector_
+    loop_->runAfter(1, std::bind(_removeConnector, connector_));
   }
 }
 
