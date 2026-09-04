@@ -5,6 +5,17 @@
 #include <unistd.h>
 
 namespace Muduo::sockets {
+
+int createNonblockingOrDie() {
+  int sockfd = ::socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd < 0) {
+    LOG_ERROR("sockets::createNonblockingOrDie Error!");
+    exit(EXIT_FAILURE);
+  }
+  setNonblockAndCloseOnExec(sockfd);
+  return sockfd;
+}
+
 void setNonblockAndCloseOnExec(int sockfd) {
   // non-block
   int flags = ::fcntl(sockfd, F_GETFL, 0);
@@ -12,14 +23,15 @@ void setNonblockAndCloseOnExec(int sockfd) {
   int ret = ::fcntl(sockfd, F_SETFL, flags);
   (void)ret;
 
-  // close-on-exec
-  flags = ::fcntl(sockfd, F_GETFL, 0);
-  flags |= O_CLOEXEC;
-  ret = ::fcntl(sockfd, F_SETFL, flags);
+  // close-on-exec: FD_CLOEXEC 属于文件描述符标志,只能通过 F_GETFD/F_SETFD 设置,
+  // 用 F_SETFL 传入 O_CLOEXEC 会被内核静默忽略
+  flags = ::fcntl(sockfd, F_GETFD, 0);
+  flags |= FD_CLOEXEC;
+  ret = ::fcntl(sockfd, F_SETFD, flags);
   (void)ret;
 }
 
-void fromIpPort(const char *ip, uint16_t port, struct sockaddr_in *addr) {
+void fromIpPort(const char* ip, uint16_t port, struct sockaddr_in* addr) {
   addr->sin_family = AF_INET;
   addr->sin_port = htons(port);
   if (inet_pton(AF_INET, ip, &addr->sin_addr) <= 0) {
@@ -28,12 +40,12 @@ void fromIpPort(const char *ip, uint16_t port, struct sockaddr_in *addr) {
   }
 }
 
-void toIp(char *buf, size_t size, const struct sockaddr_in &addr) {
+void toIp(char* buf, size_t size, const struct sockaddr_in& addr) {
   assert(size >= INET_ADDRSTRLEN);
   inet_ntop(AF_INET, &addr.sin_addr, buf, static_cast<socklen_t>(size));
 }
 
-void toIpPort(char *buf, size_t size, const struct sockaddr_in &addr) {
+void toIpPort(char* buf, size_t size, const struct sockaddr_in& addr) {
   char host[INET_ADDRSTRLEN] = "INVALID";
   toIp(host, sizeof(host), addr);
   const uint16_t port = ntohs(addr.sin_port);
@@ -47,9 +59,9 @@ void close(int sockfd) {
   }
 }
 
-void bindOrDie(int sockfd, const struct sockaddr_in &addr) {
+void bindOrDie(int sockfd, const struct sockaddr_in& addr) {
   const auto ret = ::bind(
-      sockfd, reinterpret_cast<const struct sockaddr *>(&addr), sizeof(addr));
+      sockfd, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr));
   if (ret < 0) {
     LOG_ERROR("sockets::bindOrDie");
     exit(EXIT_FAILURE);
@@ -63,12 +75,11 @@ void listenOrDie(int sockfd) {
   }
 }
 
-int accept(int sockfd, struct sockaddr_in *addr) {
+int accept(int sockfd, struct sockaddr_in* addr) {
   socklen_t addrlen = sizeof(*addr);
-  int connfd = ::accept(sockfd, reinterpret_cast<sockaddr *>(addr), &addrlen);
-  setNonblockAndCloseOnExec(connfd);
+  int connfd = ::accept(sockfd, reinterpret_cast<sockaddr*>(addr), &addrlen);
   if (connfd < 0) {
-    int savedErrno = errno;
+    int savedErrno = errno;  // 必须先于后续任何可能改动errno的调用保存
     LOG_ERROR("socket::accept");
     switch (savedErrno) {
       case EAGAIN:        // 当前没有可用的连接请求
@@ -96,6 +107,9 @@ int accept(int sockfd, struct sockaddr_in *addr) {
         exit(EXIT_FAILURE);
       }
     }
+  } else {
+    // 只对成功accept的连接设置非阻塞,失败时connfd==-1不能调用fcntl
+    setNonblockAndCloseOnExec(connfd);
   }
   return connfd;
 }
@@ -105,4 +119,58 @@ void shutdownWrite(int sockfd) {
     LOG_ERROR("sockets::shutdownWrite");
   }
 }
+
+int connect(int sockfd, const struct sockaddr_in& addr) {
+  return ::connect(sockfd, reinterpret_cast<const sockaddr*>(&addr),
+                   sizeof(addr));
+}
+
+int getSocketError(int sockfd) {
+  int optval;
+  socklen_t optlen = sizeof(optval);
+  if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0) {
+    return errno;
+  } else {
+    return optval;
+  }
+}
+
+// 自连接是指(sourceIP, sourcePort) = (destIP, destPort)
+// 自连接发生的原因:
+// 客户端在发起connect的时候，没有bind(2)
+// 客户端与服务器端在同一台机器，即sourceIP = destIP，
+// 服务器尚未开启，即服务器还没有在destPort端口上处于监听
+// 就有可能出现自连接，这样，服务器也无法启动了
+
+bool isSelfConnect(int sockfd) {
+  struct sockaddr_in localaddr = getLocalAddr(sockfd);
+  struct sockaddr_in peeraddr = getPeerAddr(sockfd);
+  return localaddr.sin_addr.s_addr == peeraddr.sin_addr.s_addr &&
+         localaddr.sin_port == peeraddr.sin_port;
+}
+
+sockaddr_in getLocalAddr(int sockfd) {
+  sockaddr_in localaddr{};
+  memset(&localaddr, 0, sizeof(localaddr));
+  socklen_t addrlen = sizeof(localaddr);
+  if (::getsockname(sockfd, reinterpret_cast<sockaddr*>(&localaddr), &addrlen) <
+      0) {
+    LOG_ERROR("sockets::getLocalAddr");
+    exit(EXIT_FAILURE);
+  }
+  return localaddr;
+}
+
+sockaddr_in getPeerAddr(int sockfd) {
+  sockaddr_in peeraddr{};
+  memset(&peeraddr, 0, sizeof(peeraddr));
+  socklen_t addrlen = sizeof(peeraddr);
+  if (::getpeername(sockfd, reinterpret_cast<sockaddr*>(&peeraddr), &addrlen) <
+      0) {
+    LOG_ERROR("sockets::getPeerAddr");
+    exit(EXIT_FAILURE);
+  }
+  return peeraddr;
+}
+
 }  // namespace Muduo::sockets

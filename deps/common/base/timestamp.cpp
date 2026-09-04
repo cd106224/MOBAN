@@ -29,7 +29,7 @@ std::string Timestamp::toFormattedString() const {
       static_cast<time_t>(m_microSecondsSinceEpoch / kMicroSecondsPerSecond);
   int microseconds =
       static_cast<int>(m_microSecondsSinceEpoch % kMicroSecondsPerSecond);
-  struct tm tm_time{};
+  struct tm tm_time {};
   gmtime_r(&seconds, &tm_time);
 
   snprintf(buf, sizeof(buf), "%4d%02d%02d %02d:%02d:%02d.%06d",
@@ -49,7 +49,7 @@ time_t Timestamp::secondsSinceEpoch() const {
 }
 
 Timestamp Timestamp::now() {
-  struct timeval tv{};
+  struct timeval tv {};
   gettimeofday(&tv, nullptr);
   int64_t seconds = tv.tv_sec;
   return Timestamp(seconds * kMicroSecondsPerSecond + tv.tv_usec);

@@ -5,7 +5,7 @@
 namespace Muduo {
 std::atomic_int64_t Timer::numCreated_;
 
-Timer::Timer(TimerCallback  cb, Timestamp when, double interval)
+Timer::Timer(TimerCallback cb, const Timestamp& when, double interval)
     : callback_(std::move(cb)),
       expiration_(when),
       interval_(interval),

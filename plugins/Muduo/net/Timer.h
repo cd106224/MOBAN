@@ -9,7 +9,7 @@
 namespace Muduo {
 class Timer : boost::noncopyable {
  public:
-  Timer(TimerCallback  cb, Timestamp when, double interval);
+  Timer(TimerCallback cb, const Timestamp& when, double interval);
   ~Timer() = default;
   void run() const;
   Timestamp expiration();

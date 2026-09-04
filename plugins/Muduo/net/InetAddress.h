@@ -19,6 +19,6 @@ class InetAddress {
   [[nodiscard]] uint16_t portNetEndian() const;
 
  protected:
-  struct sockaddr_in addr_{};
+  struct sockaddr_in addr_ {};
 };
 }  // namespace Muduo
