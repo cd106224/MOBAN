@@ -6,8 +6,8 @@
  */
 
 #include <sys/epoll.h>
+#include <utilities/noncopyable.h>
 
-#include <boost/core/noncopyable.hpp>
 #include <map>
 #include <vector>
 
@@ -17,7 +17,7 @@ namespace Muduo {
 class Channel;
 class EventLoop;
 
-class EPollPoller : boost::noncopyable {
+class EPollPoller : noncopyable {
  public:
   using ChannelList = std::vector<Channel*>;
   explicit EPollPoller(EventLoop* loop);

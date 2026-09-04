@@ -5,7 +5,8 @@
  * @author guogang
  */
 
-#include <boost/core/noncopyable.hpp>
+#include <utilities/noncopyable.h>
+
 #include <functional>
 #include <memory>
 
@@ -14,7 +15,7 @@
 namespace Muduo {
 class EventLoop;
 
-class Channel : public boost::noncopyable {
+class Channel : public noncopyable {
  public:
   using EventCallback = std::function<void()>;
   using ReadEventCallback = std::function<void(Timestamp)>;

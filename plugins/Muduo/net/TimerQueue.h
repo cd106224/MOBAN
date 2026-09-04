@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
 #include <set>
 
 #include "Channel.h"
@@ -12,7 +11,7 @@ class TimerId;
 class EventLoop;
 class Timer;
 
-class TimerQueue : boost::noncopyable {
+class TimerQueue : noncopyable {
  public:
   explicit TimerQueue(EventLoop* loop);
   ~TimerQueue();

@@ -9,7 +9,7 @@ class InetAddress;
 class Socket final : noncopyable {
  public:
   explicit Socket(int sockfd);
-  ~Socket() override;
+  ~Socket();
   [[nodiscard]] int fd() const;
   void bindAddress(const InetAddress& localaddr) const;
   void listen() const;

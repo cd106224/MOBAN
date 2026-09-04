@@ -1,9 +1,9 @@
 #pragma once
 
 #include <log/logging.h>
+#include <utilities/noncopyable.h>
 
 #include <any>
-#include <boost/core/noncopyable.hpp>
 #include <memory>
 
 #include "InetAddress.h"
@@ -15,7 +15,7 @@ class Channel;
 class EventLoop;
 class Socket;
 
-class TcpConnection : public boost::noncopyable,
+class TcpConnection : public noncopyable,
                       public std::enable_shared_from_this<TcpConnection> {
  public:
   TcpConnection(EventLoop* loop, std::string name, int sockfd,

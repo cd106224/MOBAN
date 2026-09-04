@@ -5,7 +5,6 @@
  * @author  guogang
  */
 
-#include <boost/core/noncopyable.hpp>
 #include <functional>
 
 #include "Channel.h"
@@ -15,7 +14,7 @@ namespace Muduo {
 class EventLoop;
 class InetAddress;
 
-class Acceptor : public boost::noncopyable {
+class Acceptor : public noncopyable {
  public:
   using NewConnectionCallback =
       std::function<void(int sockfd, const InetAddress&)>;

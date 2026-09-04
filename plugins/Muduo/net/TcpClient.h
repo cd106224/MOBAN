@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
 #include <memory>
 
 #include "EventLoop.h"
@@ -9,7 +8,7 @@
 namespace Muduo {
 class Connector;
 
-class TcpClient : public boost::noncopyable {
+class TcpClient : public noncopyable {
   using ConnectorPtr = std::shared_ptr<Connector>;
   TcpClient(EventLoop* loop, const InetAddress& serverAddr, std::string name);
   ~TcpClient();

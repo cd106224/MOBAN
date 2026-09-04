@@ -1,6 +1,7 @@
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
+#include <utilities/noncopyable.h>
+
 #include <functional>
 #include <memory>
 
@@ -10,8 +11,7 @@ namespace Muduo {
 class EventLoop;
 class Channel;
 
-class Connector : public boost::noncopyable,
-                  std::enable_shared_from_this<Connector> {
+class Connector : public noncopyable, std::enable_shared_from_this<Connector> {
  public:
   using NewConnectionCallback = std::function<void(int sockfd)>;
 

@@ -1,13 +1,14 @@
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
+#include <utilities/noncopyable.h>
+
 #include <functional>
 
 namespace Muduo {
 class EventLoop;
 class EventLoopThread;
 
-class EventLoopThreadPool : public boost::noncopyable {
+class EventLoopThreadPool : public noncopyable {
  public:
   using ThreadInitCallback = std::function<void(EventLoop* loop)>;
   explicit EventLoopThreadPool(EventLoop* baseloop);

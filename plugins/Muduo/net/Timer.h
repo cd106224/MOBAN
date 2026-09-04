@@ -1,13 +1,13 @@
 #pragma once
 #include <base/timestamp.h>
+#include <utilities/noncopyable.h>
 
 #include <atomic>
-#include <boost/core/noncopyable.hpp>
 
 #include "callbacks.h"
 
 namespace Muduo {
-class Timer : boost::noncopyable {
+class Timer : noncopyable {
  public:
   Timer(TimerCallback cb, const Timestamp& when, double interval);
   ~Timer() = default;

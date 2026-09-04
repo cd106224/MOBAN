@@ -6,7 +6,6 @@
  */
 
 #include <atomic>
-#include <boost/core/noncopyable.hpp>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -20,7 +19,7 @@ namespace Muduo {
 class Channel;
 class EPollPoller;
 
-class EventLoop : boost::noncopyable {
+class EventLoop : noncopyable {
  public:
   using Functor = std::function<void()>;
   EventLoop();

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
+#include <utilities/noncopyable.h>
+
 #include <functional>
 #include <map>
 
@@ -12,7 +13,7 @@ class Acceptor;
 class EventLoop;
 class EventLoopThreadPool;
 
-class TcpServer : public boost::noncopyable {
+class TcpServer : public noncopyable {
  public:
   using ThreadInitCallback = std::function<void(EventLoop*)>;
   TcpServer(EventLoop* loop, const InetAddress& listenAddr,

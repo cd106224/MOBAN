@@ -6,14 +6,14 @@
  */
 
 #include <base/thread.h>
+#include <utilities/noncopyable.h>
 
-#include <boost/core/noncopyable.hpp>
 #include <functional>
 
 namespace Muduo {
 class EventLoop;
 
-class EventLoopThread : boost::noncopyable {
+class EventLoopThread : noncopyable {
  public:
   using ThreadInitCallback = std::function<void(EventLoop*)>;
   explicit EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback());
