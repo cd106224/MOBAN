@@ -8,3 +8,4 @@ else()
 endif()
 
 add_subdirectory(miniftpd)
+add_subdirectory(miniftpd_c)
