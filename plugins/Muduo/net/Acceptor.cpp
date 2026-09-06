@@ -43,6 +43,10 @@ void Acceptor::listen() {
 
 bool Acceptor::listening() const { return listening_; }
 
+InetAddress Acceptor::listenAddr() const {
+  return acceptSocket_.getLocalAddr();
+}
+
 // idlefd_ 是应对 fd 耗尽（EMFILE）时的应急措施，核心是"宁可自己主动 accept
 // 掉再关，也不能让连接堆在队列里触发死循环"。
 void Acceptor::handleRead() {

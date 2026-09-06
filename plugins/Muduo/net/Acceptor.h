@@ -21,7 +21,9 @@ class Acceptor : public noncopyable {
   Acceptor(EventLoop* loop, const InetAddress& listenAddr);
   ~Acceptor();
   void setNewConnectionCallback(const NewConnectionCallback& cb);
-  bool listening() const;
+  [[nodiscard]] bool listening() const;
+  // 返回监听socket绑定的本地地址(监听0端口时为内核分配的实际端口)
+  [[nodiscard]] InetAddress listenAddr() const;
   void listen();
 
  protected:

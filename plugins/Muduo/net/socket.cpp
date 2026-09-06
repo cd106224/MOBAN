@@ -14,6 +14,10 @@ Socket::~Socket() { sockets::close(sockfd_); }
 
 int Socket::fd() const { return sockfd_; }
 
+InetAddress Socket::getLocalAddr() const {
+  return InetAddress(sockets::getLocalAddr(sockfd_));
+}
+
 void Socket::bindAddress(const InetAddress& localaddr) const {
   sockets::bindOrDie(sockfd_, localaddr.getSockAddrInet());
 }

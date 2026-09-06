@@ -43,6 +43,8 @@ const std::string& TcpServer::hostport() { return hostport_; }
 
 const std::string& TcpServer::name() { return name_; }
 
+InetAddress TcpServer::listenAddr() const { return acceptor_->listenAddr(); }
+
 void TcpServer::start() {
   if (!started_) {
     started_ = true;

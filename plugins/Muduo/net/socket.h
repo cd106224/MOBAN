@@ -11,6 +11,8 @@ class Socket final : noncopyable {
   explicit Socket(int sockfd);
   ~Socket();
   [[nodiscard]] int fd() const;
+  // 获取socket绑定的本地地址(监听0端口时,可由此拿到内核分配的实际端口)
+  [[nodiscard]] InetAddress getLocalAddr() const;
   void bindAddress(const InetAddress& localaddr) const;
   void listen() const;
   int accept(InetAddress* peerAddr) const;

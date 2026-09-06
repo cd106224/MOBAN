@@ -21,6 +21,9 @@ class TcpServer : public noncopyable {
   ~TcpServer();
   const std::string& hostport();
   const std::string& name();
+  // 返回监听socket绑定的本地地址(监听0端口时为内核分配的实际端口)
+  // 注意:start()之前bind尚未发生,此时调用得到的是未初始化地址
+  [[nodiscard]] InetAddress listenAddr() const;
   void setThreadNum(int numThreads);
   void setThreadInitCallback(const ThreadInitCallback& cb);
   void start();
