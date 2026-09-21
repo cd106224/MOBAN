@@ -23,6 +23,14 @@ if (PLATFORM MATCHES "HIP")
     set(PLATFORM_COMPILER "HIPCC")
 else ()
     include(FindCUDAToolkit REQUIRED)
+    # CUDA 11.5 的 nvcc 只支持到 GCC 11, 强制 nvcc 使用老版本宿主编译器,
+    # 普通 C++ 代码仍使用系统默认(CMAKE_CXX_COMPILER)的编译器
+    if (NOT DEFINED CMAKE_CUDA_HOST_COMPILER)
+        find_program(CUDA_HOST_GXX g++-9 g++-10 g++-11)
+        if (CUDA_HOST_GXX)
+            set(CMAKE_CUDA_HOST_COMPILER "${CUDA_HOST_GXX}")
+        endif ()
+    endif ()
 
     if (NOT CMAKE_CUDA_ARCHITECTURES)
         set(CMAKE_CUDA_COMPILER "${CUDAToolkit_NVCC_EXECUTABLE}")

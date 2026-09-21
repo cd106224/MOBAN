@@ -64,7 +64,11 @@ int main(int argc, char** argv) {
   return 0;
   }
   ")
-        execute_process(COMMAND ${CMAKE_CUDA_COMPILER} -std=c++11 -o "${eval_exe}" "${eval_file}"
+        set(__detect_args -std=c++11)
+        if (CMAKE_CUDA_HOST_COMPILER)
+            list(APPEND __detect_args -ccbin "${CMAKE_CUDA_HOST_COMPILER}")
+        endif ()
+        execute_process(COMMAND ${CMAKE_CUDA_COMPILER} ${__detect_args} -o "${eval_exe}" "${eval_file}"
                 ERROR_FILE "${error_file}")
     endif ()
 
