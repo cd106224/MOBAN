@@ -265,7 +265,8 @@ void TcpConnection::shutdownInLoop() {
 void TcpConnection::forceClose() {
   if (state_ == KConnected || state_ == KDisconnecting) {
     setState(KDisconnecting);
-    loop_->queueInLoop([self = shared_from_this()] { self->forceCloseInLoop(); });
+    loop_->queueInLoop(
+        [self = shared_from_this()] { self->forceCloseInLoop(); });
   }
 }
 

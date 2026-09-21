@@ -12,13 +12,13 @@
 class ThreadPool {
  public:
   using Task = std::function<void()>;
-  explicit ThreadPool(const std::string &name = "ThreadPool");
+  explicit ThreadPool(const std::string& name = "ThreadPool");
   ~ThreadPool();
   void start(const int numThread);
   void stop();
 
   template <typename F>
-  void run(F &&f) {
+  void run(F&& f) {
     {
       std::lock_guard<std::mutex> lk(mutex_);
       if (!running_.load(std::memory_order_relaxed)) {

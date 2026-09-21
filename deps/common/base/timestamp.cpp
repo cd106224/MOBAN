@@ -19,17 +19,19 @@ std::string Timestamp::toString() const {
   return buf;
 }
 
-void Timestamp::swap(Timestamp &that) {
+void Timestamp::swap(Timestamp& that) {
   std::swap(m_microSecondsSinceEpoch, that.m_microSecondsSinceEpoch);
 }
 
 std::string Timestamp::toFormattedString() const {
-  char buf[32] = {0};
+  // 32 is enough at runtime, but GCC -Wformat-truncation assumes int args can
+  // be up to 11 chars each (worst case ~78 bytes) and errors out under -Werror.
+  char buf[80] = {0};
   auto seconds =
       static_cast<time_t>(m_microSecondsSinceEpoch / kMicroSecondsPerSecond);
   int microseconds =
       static_cast<int>(m_microSecondsSinceEpoch % kMicroSecondsPerSecond);
-  struct tm tm_time {};
+  struct tm tm_time{};
   gmtime_r(&seconds, &tm_time);
 
   snprintf(buf, sizeof(buf), "%4d%02d%02d %02d:%02d:%02d.%06d",
@@ -49,7 +51,7 @@ time_t Timestamp::secondsSinceEpoch() const {
 }
 
 Timestamp Timestamp::now() {
-  struct timeval tv {};
+  struct timeval tv{};
   gettimeofday(&tv, nullptr);
   int64_t seconds = tv.tv_sec;
   return Timestamp(seconds * kMicroSecondsPerSecond + tv.tv_usec);
