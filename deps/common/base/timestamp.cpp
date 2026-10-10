@@ -3,24 +3,24 @@
 
 #include <cinttypes>
 
-Timestamp::Timestamp() : m_microSecondsSinceEpoch(0) {}
+Timestamp::Timestamp() : microSecondsSinceEpoch_(0) {}
 
 Timestamp::Timestamp(int64_t microseconds)
-    : m_microSecondsSinceEpoch(microseconds) {}
+    : microSecondsSinceEpoch_(microseconds) {}
 
 Timestamp::~Timestamp() = default;
 
 std::string Timestamp::toString() const {
   char buf[32] = {0};
-  int64_t seconds = m_microSecondsSinceEpoch / kMicroSecondsPerSecond;
-  int64_t microseconds = m_microSecondsSinceEpoch % kMicroSecondsPerSecond;
+  int64_t seconds = microSecondsSinceEpoch_ / kMicroSecondsPerSecond;
+  int64_t microseconds = microSecondsSinceEpoch_ % kMicroSecondsPerSecond;
   snprintf(buf, sizeof(buf) - 1, "%" PRId64 ".%06" PRId64 "", seconds,
            microseconds);
   return buf;
 }
 
 void Timestamp::swap(Timestamp& that) {
-  std::swap(m_microSecondsSinceEpoch, that.m_microSecondsSinceEpoch);
+  std::swap(microSecondsSinceEpoch_, that.microSecondsSinceEpoch_);
 }
 
 std::string Timestamp::toFormattedString() const {
@@ -28,9 +28,9 @@ std::string Timestamp::toFormattedString() const {
   // be up to 11 chars each (worst case ~78 bytes) and errors out under -Werror.
   char buf[80] = {0};
   auto seconds =
-      static_cast<time_t>(m_microSecondsSinceEpoch / kMicroSecondsPerSecond);
+      static_cast<time_t>(microSecondsSinceEpoch_ / kMicroSecondsPerSecond);
   int microseconds =
-      static_cast<int>(m_microSecondsSinceEpoch % kMicroSecondsPerSecond);
+      static_cast<int>(microSecondsSinceEpoch_ % kMicroSecondsPerSecond);
   struct tm tm_time{};
   gmtime_r(&seconds, &tm_time);
 
@@ -40,14 +40,14 @@ std::string Timestamp::toFormattedString() const {
   return buf;
 }
 
-bool Timestamp::valid() const { return m_microSecondsSinceEpoch > 0; }
+bool Timestamp::valid() const { return microSecondsSinceEpoch_ > 0; }
 
 int64_t Timestamp::microSecondsSinceEpoch() const {
-  return m_microSecondsSinceEpoch;
+  return microSecondsSinceEpoch_;
 }
 
 time_t Timestamp::secondsSinceEpoch() const {
-  return static_cast<time_t>(m_microSecondsSinceEpoch / kMicroSecondsPerSecond);
+  return static_cast<time_t>(microSecondsSinceEpoch_ / kMicroSecondsPerSecond);
 }
 
 Timestamp Timestamp::now() {

@@ -39,7 +39,7 @@ class Timestamp : boost::totally_ordered1<Timestamp> {
   static constexpr int kMicroSecondsPerSecond =
       1000 * 1000;  ///< 一秒对应的微秒数
  protected:
-  int64_t m_microSecondsSinceEpoch;  ///< 微秒数
+  int64_t microSecondsSinceEpoch_;  ///< 微秒数
 };
 
 inline bool operator<(const Timestamp& _left, const Timestamp& _right) {
