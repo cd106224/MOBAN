@@ -7,21 +7,21 @@ class Timestamp : boost::totally_ordered1<Timestamp> {
  public:
   Timestamp();
 
-  explicit Timestamp(int64_t microSecondsSinceEpoch);
+  explicit Timestamp(int64_t micro_seconds_since_epoch);
 
   virtual ~Timestamp();
 
   void swap(Timestamp& that);
 
-  std::string toString() const;
+  std::string to_string() const;
 
-  std::string toFormattedString() const;
+  std::string to_formatted_string() const;
 
   bool valid() const;
 
-  int64_t microSecondsSinceEpoch() const;
+  int64_t micro_seconds_since_epoch() const;
 
-  time_t secondsSinceEpoch() const;
+  time_t seconds_since_epoch() const;
 
   /**
    * @brief 获取当前时间
@@ -39,15 +39,16 @@ class Timestamp : boost::totally_ordered1<Timestamp> {
   static constexpr int kMicroSecondsPerSecond =
       1000 * 1000;  ///< 一秒对应的微秒数
  protected:
-  int64_t microSecondsSinceEpoch_;  ///< 微秒数
+  int64_t micro_seconds_since_epoch_;  ///< 微秒数
 };
 
 inline bool operator<(const Timestamp& _left, const Timestamp& _right) {
-  return _left.microSecondsSinceEpoch() < _right.microSecondsSinceEpoch();
+  return _left.micro_seconds_since_epoch() < _right.micro_seconds_since_epoch();
 }
 
 inline bool operator==(const Timestamp& _left, const Timestamp& _right) {
-  return _left.microSecondsSinceEpoch() == _right.microSecondsSinceEpoch();
+  return _left.micro_seconds_since_epoch() ==
+         _right.micro_seconds_since_epoch();
 }
 
 /**
@@ -56,8 +57,9 @@ inline bool operator==(const Timestamp& _left, const Timestamp& _right) {
  * @param low
  * @return
  */
-inline double timeDifference(const Timestamp& high, const Timestamp& low) {
-  int64_t diff = high.microSecondsSinceEpoch() - low.microSecondsSinceEpoch();
+inline double time_difference(const Timestamp& high, const Timestamp& low) {
+  int64_t diff =
+      high.micro_seconds_since_epoch() - low.micro_seconds_since_epoch();
   return static_cast<double>(diff) / Timestamp::kMicroSecondsPerSecond;
 }
 
@@ -67,8 +69,8 @@ inline double timeDifference(const Timestamp& high, const Timestamp& low) {
  * @param seconds
  * @return
  */
-inline Timestamp addTime(const Timestamp& timestamp, double seconds) {
+inline Timestamp add_time(const Timestamp& timestamp, double seconds) {
   auto delta =
       static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);
-  return Timestamp(timestamp.microSecondsSinceEpoch() + delta);
+  return Timestamp(timestamp.micro_seconds_since_epoch() + delta);
 }

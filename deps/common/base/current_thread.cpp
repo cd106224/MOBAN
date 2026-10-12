@@ -14,7 +14,7 @@
 
 namespace current_thread {
 namespace detail {
-inline int64_t gettid() noexcept {
+inline int64_t get_tid() noexcept {
 #ifdef _WIN32
   return GetCurrentThreadId();
 #else
@@ -26,7 +26,7 @@ struct Cache {
   char tidStr[32]{};
   char threadName[32] = "unKnown";
   Cache() {
-    tid = gettid();
+    tid = get_tid();
     std::snprintf(tidStr, sizeof(tidStr), "%6ld" PRId64, tid);
   }
 };
@@ -36,7 +36,7 @@ inline Cache& cache() noexcept {
 }
 }  // namespace detail
 int64_t id() noexcept { return detail::cache().tid; }
-bool isMain() noexcept { return id() == detail::gettid(); }
+bool is_main() noexcept { return id() == detail::get_tid(); }
 void set_thread_name(const std::string& name) noexcept {
   constexpr std::size_t kMax = sizeof(detail::cache().threadName);
   auto* buf = detail::cache().threadName;  // 只取一次指针

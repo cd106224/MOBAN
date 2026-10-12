@@ -22,7 +22,7 @@ int64_t Timer::sequence() const { return sequence_; }
 
 void Timer::restart(Timestamp now) {
   if (repeat_) {
-    expiration_ = addTime(now, interval_);
+    expiration_ = add_time(now, interval_);
   } else {
     expiration_ = Timestamp::invalid();
   }

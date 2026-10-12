@@ -30,7 +30,7 @@ class ThreadPool {
   }
 
  protected:
-  void runInThread();
+  void run_in_thread();
 
   std::string name_;
   std::vector<std::shared_ptr<Thread>> threads_;

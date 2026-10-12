@@ -26,8 +26,8 @@ int createTimerfd() {
 }
 
 timespec howMuchTimeFromNow(const Timestamp& when) {
-  int64_t microseconds =
-      when.microSecondsSinceEpoch() - Timestamp::now().microSecondsSinceEpoch();
+  int64_t microseconds = when.micro_seconds_since_epoch() -
+                         Timestamp::now().micro_seconds_since_epoch();
   if (microseconds < 100) {
     microseconds = 100;
   }
@@ -41,7 +41,7 @@ timespec howMuchTimeFromNow(const Timestamp& when) {
 void readTimerfd(int timerfd, const Timestamp& now) {
   uint64_t howmany;
   ssize_t n = read(timerfd, &howmany, sizeof(howmany));
-  LOG_INFO("TimerQueue::handleRead() {} at {}", howmany, now.toString());
+  LOG_INFO("TimerQueue::handleRead() {} at {}", howmany, now.to_string());
   if (n != sizeof(howmany)) {
     LOG_ERROR("TimerQueue::handleRead() reads {} bytes instead of 8", n);
   }

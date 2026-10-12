@@ -14,7 +14,7 @@ class CountDownLatch {
   CountDownLatch(const CountDownLatch&) = delete;
   CountDownLatch& operator=(const CountDownLatch&) = delete;
 
-  void countDown() {
+  void count_down() {
     std::lock_guard<std::mutex> lock(m_);
     if (count_ == 0) return;  // 已到达 0，直接退出
     if (--count_ == 0) cv_.notify_all();
@@ -27,14 +27,14 @@ class CountDownLatch {
   }
 
   template <typename Rep, typename Period>
-  bool waitFor(const std::chrono::duration<Rep, Period>& timeout) {
+  bool wait_for(const std::chrono::duration<Rep, Period>& timeout) {
     std::unique_lock<std::mutex> lock(m_);
     return cv_.wait_for(lock, timeout, [this] {
       return count_.load(std::memory_order_acquire) == 0;
     });
   }
 
-  std::ptrdiff_t getCount() const noexcept {
+  std::ptrdiff_t get_count() const noexcept {
     return count_.load(std::memory_order_acquire);
   }
 

@@ -17,11 +17,11 @@ void ThreadPool::start(const int numThread) {
   for (auto i = 0; i < numThread; ++i) {
     std::string threadName = fmt::format("{}-{}", name_, i);
     threads_.emplace_back(std::make_shared<Thread>(
-        Thread::Create(threadName, &ThreadPool::runInThread, this)));
+        Thread::Create(threadName, &ThreadPool::run_in_thread, this)));
   }
 }
 
-void ThreadPool::runInThread() {
+void ThreadPool::run_in_thread() {
   while (true) {
     Task task;
     {
