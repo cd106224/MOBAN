@@ -7,6 +7,11 @@ ThreadPool::ThreadPool(const std::string& name)
 
 ThreadPool::~ThreadPool() { stop(); }
 
+/**
+ * @brief 启动线程池
+ * @param numThread 工作线程数
+ * @note 可重复调用: 首次启动或 stop 之后重启。重复启动(在跑时再start)会被拒绝。
+ */
 void ThreadPool::start(const int numThread) {
   if (running_.exchange(true)) {
     LOG_WARN("ThreadPool {} already started", name_);
