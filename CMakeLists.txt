@@ -22,7 +22,7 @@ add_library(global-group INTERFACE)
 message(STATUS "MOBAN: Build ${MOBAN_BACKEND_VERSION}")
 add_definitions(-D_BACKEND_VERSION="${MOBAN_BACKEND_VERSION}")
 
-add_subdirectory(deps/common)
 add_subdirectory(deps/third_party)
+add_subdirectory(deps/common)
 add_subdirectory(plugins)
 add_subdirectory(example)

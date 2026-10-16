@@ -1,0 +1,8 @@
+# 旧部署留下的 YAML 配置，目前 Config 还不支持该格式。
+# 用来验证：扩展名无法识别时，load_file 给出明确错误而不是静默失败。
+server:
+  listen:
+    host: 0.0.0.0
+    port: 9000
+log:
+  level: info

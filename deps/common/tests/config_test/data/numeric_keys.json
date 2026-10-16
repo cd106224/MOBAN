@@ -1,0 +1,12 @@
+{
+  "http_status": {
+    "200": "OK",
+    "404": "Not Found",
+    "500": "Internal Server Error"
+  },
+  "ports": [2121, 2122, 2123],
+  "matrix": [
+    {"name": "row0", "cells": [1, 2, 3]},
+    {"name": "row1", "cells": [4, 5, 6]}
+  ]
+}

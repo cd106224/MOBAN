@@ -1,0 +1,50 @@
+{
+  "server": {
+    "name": "MOBAN Backend",
+    "listen": {
+      "host": "0.0.0.0",
+      "port": 9000,
+      "backlog": 128,
+      "reuse_addr": true
+    },
+    "threads": {
+      "io": 4,
+      "work": 8,
+      "name_prefix": "moban"
+    }
+  },
+  "log": {
+    "level": "info",
+    "console": true,
+    "file": "/var/log/moban/backend.log",
+    "max_size_mb": 64,
+    "rotate_count": 5
+  },
+  "storage": {
+    "root": "/data/moban",
+    "quota_bytes": 1073741824,
+    "follow_symlinks": false
+  },
+  "backend": {
+    "gpu": {
+      "enabled": true,
+      "device_id": 0,
+      "memory_fraction": 0.8
+    },
+    "timeout_ms": 30000,
+    "retries": 3,
+    "fallback": null
+  },
+  "backends": [
+    {
+      "name": "alpha",
+      "weight": 1.0,
+      "endpoint": "10.0.0.1:8080"
+    },
+    {
+      "name": "beta",
+      "weight": 0.5,
+      "endpoint": "10.0.0.2:8080"
+    }
+  ]
+}
