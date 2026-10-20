@@ -42,7 +42,7 @@
 
 ## 3. 依赖方向
 
-```
+```text
 example/  ──►  plugins/  ──►  common/  ──►  deps/third_party/
 ```
 
@@ -129,7 +129,7 @@ CI（`.github/workflows/build.yml`）在 push/PR 到 `master` 时执行
 
 | 优先级 | 模块 | 内容 |
 | --- | --- | --- |
-| P0 | `utilities/string_utils` | trim、split、join、大小写转换、前后缀判断、替换、安全数字转换（带错误检查） |
+| P0 | `utilities/string_utils` | trim、split、join、大小写转换、前后缀判断、替换、安全数字转换（带错误检查）——**已完成**，命名空间 `common::util` |
 | P0 | `utilities/file_utils` | 文件读写、存在性/类型/大小判断、目录列举、原子写（临时文件 + rename） |
 | P0 | `utilities/path_utils` | 路径拼接、规范化（消解 `.`/`..`）、扩展名与分隔符处理 |
 | P0 | `utilities/temp_file` | 临时文件 / 临时目录 RAII，供测试与运行时使用 |
