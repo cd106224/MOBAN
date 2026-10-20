@@ -53,9 +53,31 @@ ConfigValue ConfigValue::make_array(ConfigArray items, std::string path) {
 }
 
 ConfigValue ConfigValue::make_object(ConfigObject fields, std::string path) {
+  // 配置是人手写的，同一层出现同名 key 基本都是复制粘贴事故。两个值
+  // 通常还不相同，静默按"取第一个/最后一个"处理会让运行时行为取决于
+  // 哪一行在前，因此这里直接报错。线性扫描即可，配置对象的 key 数量很小。
+  for (size_t i = 0; i < fields.size(); ++i) {
+    for (size_t j = i + 1; j < fields.size(); ++j) {
+      if (fields[i].first != fields[j].first) continue;
+      const std::string& where = fields[j].second.path();
+      throw ConfigError(
+          (where.empty() ? child_path(path, fields[j].first) : where) +
+          ": duplicate key");
+    }
+  }
+
   return ConfigValue(
       Storage{std::make_shared<const ConfigObject>(std::move(fields))},
       std::move(path));
+}
+
+std::string ConfigValue::child_path(std::string_view parent,
+                                    std::string_view key) {
+  if (parent.empty()) return std::string(key);
+  std::string result(parent);
+  result.push_back('.');
+  result.append(key);
+  return result;
 }
 
 bool ConfigValue::as_bool() const {

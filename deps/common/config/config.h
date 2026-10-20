@@ -4,8 +4,9 @@
 
 #include "config_value.h"
 
-// Xml 后端后续按同一套 ConfigValue 树接入，只需在此追加枚举项与一个
-// parse_xml 实现，Config 的读取逻辑无需改动。
+// 配置的来源格式。解析由 config_parser.h 里的后端分发完成，Config 本身
+// 不感知具体格式：新增 Xml 后端时只要在 config_parser.h 里加一个解析入口
+// 和一个枚举项，这里的读取逻辑无需改动。
 enum class ConfigFormat { Auto, Json };
 
 class Config {

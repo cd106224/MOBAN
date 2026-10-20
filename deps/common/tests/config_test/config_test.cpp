@@ -232,3 +232,20 @@ TEST(ConfigTest, ReloadReplacesPreviousTree) {
   EXPECT_FALSE(config.has("server.listen"));
   EXPECT_TRUE(config.has("server.port"));
 }
+
+// ==================== 从内存读取 ====================
+TEST(ConfigTest, LoadsFromStringWithExplicitFormat) {
+  Config config(ConfigFormat::Json);
+  config.load_string(R"({"server":{"port":2121}})", ConfigFormat::Auto);
+
+  EXPECT_TRUE(config.loaded());
+  EXPECT_EQ(config.get<int32_t>("server.port"), 2121);
+}
+
+TEST(ConfigTest, ThrowsWhenStringFormatCannotBeInferred) {
+  // 内存里的文本没有文件名，Auto 没有推断依据，必须显式指定格式。
+  Config config;
+  EXPECT_THROW(config.load_string(R"({"a":1})", ConfigFormat::Auto),
+               ConfigError);
+  EXPECT_FALSE(config.loaded());
+}

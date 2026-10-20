@@ -1,8 +1,5 @@
 #include "config.h"
 
-#include <rapidjson/document.h>
-#include <rapidjson/error/en.h>
-
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
@@ -11,137 +8,14 @@
 #include <string>
 #include <type_traits>
 
+#include "config_parser.h"
+
 namespace {
-
-std::string join_path(std::string_view parent, std::string_view key) {
-  if (parent.empty()) return std::string(key);
-  std::string result(parent);
-  result.push_back('.');
-  result.append(key);
-  return result;
-}
-
-ConfigValue convert(const rapidjson::Value& node, std::string path) {
-  switch (node.GetType()) {
-    case rapidjson::kNullType:
-      return ConfigValue::make_null(std::move(path));
-
-    case rapidjson::kTrueType:
-      return ConfigValue::make_bool(true, std::move(path));
-
-    case rapidjson::kFalseType:
-      return ConfigValue::make_bool(false, std::move(path));
-
-    case rapidjson::kNumberType: {
-      // rapidjson 用 IsInt64/IsUint64 判断，先按无符号、再按有符号、最后回落
-      // double，这样 2121 读出来是 int 而不是 double。
-      if (node.IsUint64()) {
-        return ConfigValue::make_int(static_cast<int64_t>(node.GetUint64()),
-                                     std::move(path));
-      }
-      if (node.IsInt64()) {
-        return ConfigValue::make_int(node.GetInt64(), std::move(path));
-      }
-      return ConfigValue::make_double(node.GetDouble(), std::move(path));
-    }
-
-    case rapidjson::kStringType:
-      return ConfigValue::make_string(node.GetString(), std::move(path));
-
-    case rapidjson::kArrayType: {
-      ConfigArray items;
-      items.reserve(node.Size());
-      size_t index = 0;
-      for (const auto& item : node.GetArray()) {
-        items.push_back(convert(item, join_path(path, std::to_string(index))));
-        ++index;
-      }
-      return ConfigValue::make_array(std::move(items), std::move(path));
-    }
-
-    case rapidjson::kObjectType: {
-      ConfigObject fields;
-      fields.reserve(node.MemberCount());
-      for (const auto& member : node.GetObject()) {
-        const std::string_view name = member.name.GetString();
-
-        // 配置是人手写的，同一层出现同名 key 基本都是复制粘贴事故。两个值
-        // 通常还不相同，静默按"取第一个/最后一个"处理会让运行时行为取决于
-        // 哪一行在前，因此这里直接报错。线性扫描即可，配置对象的 key 数量很小。
-        for (const auto& field : fields) {
-          if (field.first == name) {
-            throw ConfigError(join_path(path, name) + ": duplicate key");
-          }
-        }
-
-        fields.emplace_back(std::string(name),
-                            convert(member.value, join_path(path, name)));
-      }
-      return ConfigValue::make_object(std::move(fields), std::move(path));
-    }
-
-    default:
-      throw ConfigError("json: unsupported node type at " +
-                        (path.empty() ? std::string("<root>") : path));
-  }
-}
-
-const char* json_type_name(rapidjson::Type type) {
-  switch (type) {
-    case rapidjson::kNullType:
-      return "null";
-    case rapidjson::kFalseType:
-    case rapidjson::kTrueType:
-      return "bool";
-    case rapidjson::kNumberType:
-      return "number";
-    case rapidjson::kStringType:
-      return "string";
-    case rapidjson::kArrayType:
-      return "array";
-    case rapidjson::kObjectType:
-      return "object";
-    default:
-      return "unknown";
-  }
-}
-
-ConfigValue parse_json(std::string_view content) {
-  rapidjson::Document document;
-  // 配置文件是人写的，放开注释和尾随逗号，少一份因为手误而启动失败的理由。
-  document.Parse<rapidjson::kParseCommentsFlag |
-                 rapidjson::kParseTrailingCommasFlag>(content.data(),
-                                                      content.size());
-
-  if (document.HasParseError()) {
-    std::ostringstream oss;
-    oss << "json parse error at offset " << document.GetErrorOffset() << ": "
-        << rapidjson::GetParseError_En(document.GetParseError());
-    throw ConfigError(oss.str());
-  }
-
-  if (!document.IsObject()) {
-    throw ConfigError("json root must be an object, got " +
-                      std::string(json_type_name(document.GetType())));
-  }
-  return convert(document, std::string());
-}
 
 bool is_index(std::string_view segment) {
   if (segment.empty()) return false;
   return std::all_of(segment.begin(), segment.end(),
                      [](unsigned char c) { return std::isdigit(c) != 0; });
-}
-
-ConfigFormat format_from_extension(std::string_view path) {
-  const size_t dot = path.rfind('.');
-  const std::string_view extension = (dot == std::string_view::npos)
-                                         ? std::string_view()
-                                         : path.substr(dot + 1);
-
-  if (extension == "json") return ConfigFormat::Json;
-  throw ConfigError("cannot infer config format from file '" +
-                    std::string(path) + "', only .json is supported");
 }
 
 }  // namespace
@@ -159,8 +33,9 @@ bool Config::load_file(std::string_view path) {
   }
 
   const std::string content = buffer.str();
-  const ConfigFormat resolved =
-      (format_ == ConfigFormat::Auto) ? format_from_extension(path) : format_;
+  const ConfigFormat resolved = (format_ == ConfigFormat::Auto)
+                                    ? config_format_from_extension(path)
+                                    : format_;
 
   return load_string(content, resolved);
 }
@@ -169,12 +44,7 @@ bool Config::load_string(std::string_view content, ConfigFormat format) {
   const ConfigFormat resolved =
       (format == ConfigFormat::Auto) ? format_ : format;
 
-  switch (resolved) {
-    case ConfigFormat::Auto:
-    case ConfigFormat::Json:
-      root_ = parse_json(content);
-      break;
-  }
+  root_ = parse_config(content, resolved);
 
   format_ = resolved;
   loaded_ = true;

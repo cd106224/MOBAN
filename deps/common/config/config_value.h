@@ -39,7 +39,13 @@ class ConfigValue {
   static ConfigValue make_double(double value, std::string path = {});
   static ConfigValue make_string(std::string value, std::string path = {});
   static ConfigValue make_array(ConfigArray items, std::string path = {});
+  // 对象内不允许重复 key，重复时抛 ConfigError（错误信息带该字段的点号路径）。
+  // 校验放在值树这一层而不是各个解析后端里，保证所有格式的判定一致。
   static ConfigValue make_object(ConfigObject fields, std::string path = {});
+
+  // 拼出子节点的点号路径：父路径为空时就是 key 本身，否则 "parent.key"。
+  // 各解析后端用它给每个节点标注路径，路径同时也是错误信息里的定位信息。
+  static std::string child_path(std::string_view parent, std::string_view key);
 
   Type type() const noexcept { return static_cast<Type>(value_.index()); }
   bool is_null() const noexcept { return type() == Type::Null; }
