@@ -5,6 +5,8 @@
 #include <mutex>
 #include <stdexcept>
 
+namespace common::base {
+
 class CountDownLatch {
  public:
   explicit CountDownLatch(std::ptrdiff_t count) : count_(count) {
@@ -43,3 +45,5 @@ class CountDownLatch {
   std::condition_variable cv_;
   std::atomic<std::ptrdiff_t> count_;
 };
+
+}  // namespace common::base

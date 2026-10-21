@@ -26,12 +26,12 @@ class EventLoop : noncopyable {
   ~EventLoop();
   void loop();
   void quit();
-  Timestamp pollReturnTime();
+  common::base::Timestamp pollReturnTime();
   // 在I/O线程中执行某个回调函数,该函数可以跨线程调用
   void runInLoop(const Functor& cb);
   void queueInLoop(const Functor& cb);
 
-  TimerId runAt(const Timestamp& time, const TimerCallback& cb);
+  TimerId runAt(const common::base::Timestamp& time, const TimerCallback& cb);
   TimerId runAfter(double delay, const TimerCallback& cb);
   TimerId runEvery(double interval, const TimerCallback& cb);
   void cancel(TimerId timerId);
@@ -58,7 +58,7 @@ class EventLoop : noncopyable {
   bool eventHandling_;
   std::atomic<bool> callingPendingFunctors_;
   const pid_t threadId_;
-  Timestamp pollReturnTime_;
+  common::base::Timestamp pollReturnTime_;
   std::unique_ptr<EPollPoller> poller_;
   std::unique_ptr<TimerQueue> timerQueue_;
 

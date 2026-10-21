@@ -12,17 +12,18 @@
 
 | 组件 | 头文件 | 一句话 | 命名空间 |
 | --- | --- | --- | --- |
-| `Thread` | `base/thread.h` | 带名字和 tid 的线程封装 | 全局 |
-| `ThreadPool` | `base/thread_pool.h` | 固定线程数 + 任务队列 | 全局 |
-| `current_thread` | `base/current_thread.h` | 当前线程的 tid / 名字（线程局部） | `current_thread` |
-| `BlockingQueue` | `base/blocking_queue.h` | 无界阻塞队列 | 全局 |
-| `BoundedBlockingQueue` | `base/bounded_blocking_queue.h` | 定长环形阻塞队列 | 全局 |
-| `CountDownLatch` | `base/count_down_latch.h` | 计数门闩 | 全局 |
-| `Timestamp` | `base/timestamp.h` | 微秒精度时间点 | 全局 |
-| `demangle` | `base/demangle.h` | C++ 符号名反混淆 | 全局 |
+| `Thread` | `base/thread.h` | 带名字和 tid 的线程封装 | `common::base` |
+| `ThreadPool` | `base/thread_pool.h` | 固定线程数 + 任务队列 | `common::base` |
+| `current_thread` | `base/current_thread.h` | 当前线程的 tid / 名字（线程局部） | `common::base::current_thread` |
+| `BlockingQueue` | `base/blocking_queue.h` | 无界阻塞队列 | `common::base` |
+| `BoundedBlockingQueue` | `base/bounded_blocking_queue.h` | 定长环形阻塞队列 | `common::base` |
+| `CountDownLatch` | `base/count_down_latch.h` | 计数门闩 | `common::base` |
+| `Timestamp` | `base/timestamp.h` | 微秒精度时间点 | `common::base` |
+| `demangle` | `base/demangle.h` | C++ 符号名反混淆 | `common::base` |
 
-**命名空间现状**：`deps/common/README.md` 第 8 节列的技术债之一 —— 除 `current_thread` 外，
-这些类型都还在全局命名空间，迁入 `common::base` 待做。
+**命名空间现状**：本目录所有对外类型都在 `common::base` 下（`current_thread` 作为其中的
+子命名空间 `common::base::current_thread`），实现细节统一放在 `common::base::detail`。
+调用方需显式限定，不提供全局别名。
 
 ---
 
@@ -31,7 +32,7 @@
 带名字和 tid 的线程封装。内部起一个 `std::thread`，真正的入口是 `monitor_thread`。
 
 ```cpp
-Thread t = Thread::Create("worker", []{ do_work(); });
+common::base::Thread t = common::base::Thread::Create("worker", []{ do_work(); });
 t.join();                    // 或 t.detach()
 const std::string& name = t.name();
 int64_t tid = t.tid();
@@ -68,7 +69,7 @@ int64_t tid = t.tid();
 固定数量的工作线程 + 一个任务队列。
 
 ```cpp
-ThreadPool pool("io");
+common::base::ThreadPool pool("io");
 pool.start(4);                 // 起 4 个工作线程
 
 pool.run([]{ task_a(); });     // 投递任务；未运行时抛 std::runtime_error
@@ -93,10 +94,10 @@ pool.stop();                   // 停止并 join 全部线程
 线程局部信息（tid、线程名）。数据存在 `thread_local` 缓存里，读取无锁。
 
 ```cpp
-int64_t tid = current_thread::id();
-std::string name = current_thread::thread_name();
-current_thread::set_thread_name("io-worker");
-bool main = current_thread::is_main();
+int64_t tid = common::base::current_thread::id();
+std::string name = common::base::current_thread::thread_name();
+common::base::current_thread::set_thread_name("io-worker");
+bool main = common::base::current_thread::is_main();
 ```
 
 - `id()`：缓存的 tid。首次访问时通过 `syscall(SYS_gettid)` 取一次，之后直接读缓存。
@@ -111,7 +112,7 @@ bool main = current_thread::is_main();
 ### 5.1 `BlockingQueue` —— 无界
 
 ```cpp
-BlockingQueue<std::string> q;
+common::base::BlockingQueue<std::string> q;
 q.put("hello");                      // 阻塞直到入队（无界，实际不会阻塞）
 std::string s = q.take();            // 阻塞直到有元素；队列已关闭则抛异常
 std::optional<std::string> v = q.try_take();   // 非阻塞，空则 nullopt
@@ -126,7 +127,7 @@ q.shutdown();                        // 让阻塞在 take() 上的线程醒来
 ### 5.2 `BoundedBlockingQueue` —— 定长环形缓冲
 
 ```cpp
-BoundedBlockingQueue<Task> q(16);
+common::base::BoundedBlockingQueue<Task> q(16);
 q.push(task);                        // 满时阻塞
 bool ok = q.try_push(task);          // 满时返回 false
 std::optional<Task> t = q.pop();     // 空时阻塞
@@ -141,7 +142,7 @@ q.stop();                            // 唤醒所有等待者
 ### 5.3 `CountDownLatch` —— 计数门闩
 
 ```cpp
-CountDownLatch latch(3);
+common::base::CountDownLatch latch(3);
 latch.count_down();                  // 减到 0 时唤醒所有等待者
 latch.wait();                        // 阻塞到计数为 0
 bool reached = latch.wait_for(std::chrono::milliseconds(100));
@@ -158,12 +159,12 @@ std::ptrdiff_t n = latch.get_count();
 微秒精度的时间点。
 
 ```cpp
-Timestamp t = Timestamp::now();
+common::base::Timestamp t = common::base::Timestamp::now();
 int64_t us = t.micro_seconds_since_epoch();
 std::string s = t.to_string();               // "1712345678.123456"
 std::string f = t.to_formatted_string();     // "20240405 12:34:56.123456"
-double seconds = time_difference(later, earlier);
-Timestamp shifted = add_time(t, 1.5);
+double seconds = common::base::time_difference(later, earlier);
+common::base::Timestamp shifted = common::base::add_time(t, 1.5);
 ```
 
 ### 语义与注意事项
@@ -191,10 +192,11 @@ Timestamp shifted = add_time(t, 1.5);
 
 ```cpp
 int status = 0;
-std::string name = demangle("_ZNSt3__14cerrE", status);   // status != 0 表示失败
-std::string name2 = demangle("_ZNSt3__14cerrE");          // 简化版，忽略 status
+std::string name = common::base::demangle("_ZNSt3__14cerrE", status);   // status != 0 表示失败
+std::string name2 = common::base::demangle("_ZNSt3__14cerrE");          // 简化版，忽略 status
 
-DemangleResult r = try_demangle("_ZNSt3__14cerrE");      // unique_ptr<char, FreeingDeleter>
+common::base::DemangleResult r =
+    common::base::try_demangle("_ZNSt3__14cerrE");  // unique_ptr<char, FreeingDeleter>
 ```
 
 - 基于 `abi::__cxa_demangle`。**去混淆失败时返回原始名字**，不会抛异常。
@@ -261,8 +263,6 @@ std::snprintf(tidStr, sizeof(tidStr), "%6ld" PRId64, tid);
 | `thread.cpp` | 线程体异常被 `catch(...)` 吞掉，只记日志 |
 | `bounded_blocking_queue.h` | `max_size_ == 0` 时 `is_full_locked()` 恒为 true，`push()` 会永久阻塞（无参数校验） |
 | `bounded_blocking_queue.h` | `try_pop_for()` 在"已 stop 且队列非空"时返回 `nullopt`，会丢掉一个元素 |
-| `bounded_blocking_queue.h` | 用了 `std::chrono::duration` 但没 `#include <chrono>`，靠传递包含 |
-| `demangle.h` | 用了 `std::free` 但没 `#include <cstdlib>`，靠传递包含 |
 | `current_thread.cpp` | 保留了 `_WIN32` 分支，与本项目"只维护 Linux"的定位不符（`deps/common/README.md` 记忆项） |
 | `demangle.h` | 传入 `nullptr` 是未定义行为 |
 

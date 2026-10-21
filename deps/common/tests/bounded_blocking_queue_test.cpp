@@ -6,6 +6,8 @@
 #include <thread>
 #include <vector>
 
+using common::base::BoundedBlockingQueue;
+
 class BoundedBlockingQueueTest : public ::testing::Test {
  protected:
   BoundedBlockingQueue<int> queue_{2};

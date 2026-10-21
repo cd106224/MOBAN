@@ -49,7 +49,7 @@ class TcpConnection : public noncopyable,
  protected:
   enum StateE { KDisconnected, KConnecting, KConnected, KDisconnecting };
   friend struct ::fmt::formatter<StateE>;
-  void handleRead(Timestamp receiveTime);
+  void handleRead(common::base::Timestamp receiveTime);
   void handleWrite();
   void handleClose();
   void forceCloseInLoop();

@@ -4,6 +4,8 @@
 
 #include "current_thread.h"
 
+namespace common::base {
+
 Thread::Thread(const std::string& name) : name_(name) {}
 
 Thread Thread::start_thread(const std::string& name,
@@ -29,3 +31,5 @@ void Thread::monitor_thread(const std::function<void()>& func,
     // throw;  // rethrow
   }
 }
+
+}  // namespace common::base

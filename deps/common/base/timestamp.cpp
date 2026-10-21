@@ -3,6 +3,8 @@
 
 #include <cinttypes>
 
+namespace common::base {
+
 Timestamp::Timestamp() : micro_seconds_since_epoch_(0) {}
 
 Timestamp::Timestamp(int64_t microseconds)
@@ -59,3 +61,5 @@ Timestamp Timestamp::now() {
 }
 
 Timestamp Timestamp::invalid() { return {}; }
+
+}  // namespace common::base

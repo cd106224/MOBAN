@@ -21,7 +21,7 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
   acceptSocket_.setReuseAddr(true);
   acceptSocket_.bindAddress(listenAddr);
   acceptChannel_.setReadCallback(
-      [this](const Timestamp&) { this->handleRead(); });
+      [this](const common::base::Timestamp&) { this->handleRead(); });
 }
 
 Acceptor::~Acceptor() {

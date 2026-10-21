@@ -30,7 +30,7 @@ void Channel::tie(const std::shared_ptr<void>& obj) {
   tied_ = true;
 }
 
-void Channel::handleEvent(const Timestamp& receiveTime) {
+void Channel::handleEvent(const common::base::Timestamp& receiveTime) {
   std::shared_ptr<void> guard;
   if (tied_) {
     guard = tie_.lock();
@@ -98,7 +98,7 @@ void Channel::remove() {
 
 void Channel::update() { loop_->updateChanel(this); }
 
-void Channel::handleEventWithGuard(Timestamp receiveTime) {
+void Channel::handleEventWithGuard(common::base::Timestamp receiveTime) {
   eventHandling_ = true;
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN)) {
     if (logHup_) {

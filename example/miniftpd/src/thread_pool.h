@@ -76,7 +76,7 @@ class ThreadPool {
     }
   }
 
-  BlockingQueue<Task> queue_;
+  common::base::BlockingQueue<Task> queue_;
   std::atomic<size_t> pending_{0};
   std::vector<std::thread> workers_;
 };

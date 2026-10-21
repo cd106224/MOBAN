@@ -6,6 +6,8 @@
 #include <thread>
 #include <vector>
 
+using common::base::CountDownLatch;
+
 namespace {
 
 TEST(CountDownLatchTest, SingleThread) {

@@ -7,6 +7,7 @@
 
 #include "base/blocking_queue.h"
 
+using common::base::BlockingQueue;
 using namespace std::chrono_literals;
 
 class BlockingQueueTest : public ::testing::Test {

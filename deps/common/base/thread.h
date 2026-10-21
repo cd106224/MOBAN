@@ -1,9 +1,15 @@
 #pragma once
 
+#include <sys/types.h>
+
+#include <cstdint>
 #include <functional>
 #include <future>
+#include <memory>
 #include <string>
 #include <thread>
+
+namespace common::base {
 
 class Thread {
  public:
@@ -36,3 +42,5 @@ class Thread {
   const std::string name_{};
   pid_t tid_{-2};
 };
+
+}  // namespace common::base

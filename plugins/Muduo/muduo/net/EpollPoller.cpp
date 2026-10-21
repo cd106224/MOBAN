@@ -31,10 +31,11 @@ EPollPoller::EPollPoller(EventLoop* loop)
 
 EPollPoller::~EPollPoller() { close(epollfd_); }
 
-Timestamp EPollPoller::poll(int timeoutMs, ChannelList* activeChannels) {
+common::base::Timestamp EPollPoller::poll(int timeoutMs,
+                                          ChannelList* activeChannels) {
   int numEvents = epoll_wait(epollfd_, &*events_.begin(),
                              static_cast<int>(events_.size()), timeoutMs);
-  Timestamp now(Timestamp::now());
+  common::base::Timestamp now(common::base::Timestamp::now());
   if (numEvents > 0) {
     LOG_INFO("{} events happened", numEvents);
     fillActiveChannel(numEvents, activeChannels);

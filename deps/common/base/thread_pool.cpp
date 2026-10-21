@@ -2,6 +2,8 @@
 
 #include "log/logging.h"
 
+namespace common::base {
+
 ThreadPool::ThreadPool(const std::string& name)
     : name_(name), running_(false) {}
 
@@ -61,3 +63,5 @@ void ThreadPool::stop() {
   }
   threads_.clear();
 }
+
+}  // namespace common::base

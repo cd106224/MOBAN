@@ -30,7 +30,7 @@ class EventLoopThread : noncopyable {
   std::condition_variable cond_;
   ThreadInitCallback callback_;  // 回调函数在EventLoop::Loop事件循环之前被调用
   // Thread在构造时就会启动线程,必须放到最后声明,保证mutex_/cond_/callback_先完成构造
-  Thread thread_;
+  common::base::Thread thread_;
 };
 
 }  // namespace Muduo

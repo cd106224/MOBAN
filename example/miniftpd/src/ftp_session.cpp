@@ -86,7 +86,8 @@ void FtpSession::reply(const Muduo::TcpConnectionPtr& conn,
 }
 
 void FtpSession::onMessage(const Muduo::TcpConnectionPtr& conn,
-                           Muduo::Buffer* buffer, Timestamp /*time*/) {
+                           Muduo::Buffer* buffer,
+                           common::base::Timestamp /*time*/) {
   // 按行拆分 FTP 命令,可能一次到达多行(粘包),也可能半行
   while (buffer->readableBytes() > 0) {
     const char* crlf = buffer->findCRLF();
@@ -212,7 +213,7 @@ void FtpSession::cmdPasv(const Muduo::TcpConnectionPtr& conn) {
       });
   dataServer_->setMessageCallback(
       [self = shared_from_this()](const Muduo::TcpConnectionPtr& c,
-                                  Muduo::Buffer* b, Timestamp t) {
+                                  Muduo::Buffer* b, common::base::Timestamp t) {
         self->handleDataMessage(c, b, t);
       });
   dataServer_->start();
@@ -442,7 +443,8 @@ void FtpSession::sendChunkReady(uint64_t gen, std::string chunk, bool atEof,
 }
 
 void FtpSession::handleDataMessage(const Muduo::TcpConnectionPtr& /*conn*/,
-                                   Muduo::Buffer* buffer, Timestamp) {
+                                   Muduo::Buffer* buffer,
+                                   common::base::Timestamp) {
   // 本阶段只实现下载/LIST,数据连接收到的内容(上传)直接丢弃
   buffer->retrieveAll();
 }

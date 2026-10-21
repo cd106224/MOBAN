@@ -44,7 +44,7 @@ class FtpSession : public std::enable_shared_from_this<FtpSession> {
 
   // 控制连接消息入口(公有:由 main.cpp 的回调调用)
   void onMessage(const Muduo::TcpConnectionPtr& conn, Muduo::Buffer* buffer,
-                 Timestamp time);
+                 common::base::Timestamp time);
 
  private:
   // ---- 控制连接侧 ----
@@ -55,7 +55,7 @@ class FtpSession : public std::enable_shared_from_this<FtpSession> {
   // ---- PASV 数据连接侧 ----
   void handleDataConnected(const Muduo::TcpConnectionPtr& conn);
   void handleDataMessage(const Muduo::TcpConnectionPtr& conn,
-                         Muduo::Buffer* buffer, Timestamp time);
+                         Muduo::Buffer* buffer, common::base::Timestamp time);
   void closeDataServer();
   // 数据连接与传输任务都就绪时开始传输(客户端连数据端口与发LIST/RETR的
   // 顺序不固定,两侧都调用本函数,谁后到谁触发)

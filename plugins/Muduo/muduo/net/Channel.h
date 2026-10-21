@@ -18,12 +18,12 @@ class EventLoop;
 class Channel : public noncopyable {
  public:
   using EventCallback = std::function<void()>;
-  using ReadEventCallback = std::function<void(Timestamp)>;
+  using ReadEventCallback = std::function<void(common::base::Timestamp)>;
 
   Channel(EventLoop* loop, int fd);
   ~Channel();
 
-  void handleEvent(const Timestamp& receiveTime);
+  void handleEvent(const common::base::Timestamp& receiveTime);
   void setReadCallback(const ReadEventCallback& cb);
   void setWriteCallback(const EventCallback& cb);
   void setCloseCallback(const EventCallback& cb);
@@ -48,7 +48,7 @@ class Channel : public noncopyable {
 
  protected:
   void update();
-  void handleEventWithGuard(Timestamp receiveTime);
+  void handleEventWithGuard(common::base::Timestamp receiveTime);
 
   static const int KNoneEvent;
   static const int KReadEvent;

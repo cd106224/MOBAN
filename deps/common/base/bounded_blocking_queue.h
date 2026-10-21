@@ -1,9 +1,12 @@
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <optional>
 #include <vector>
+
+namespace common::base {
 
 template <typename T>
 class BoundedBlockingQueue {
@@ -95,3 +98,5 @@ class BoundedBlockingQueue {
   size_t back_ = 0;
   bool stopped_ = false;
 };
+
+}  // namespace common::base

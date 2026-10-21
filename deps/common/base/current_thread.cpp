@@ -12,7 +12,7 @@
 #include <cstdio>
 #include <cstring>
 
-namespace current_thread {
+namespace common::base {
 namespace detail {
 inline int64_t get_tid() noexcept {
 #ifdef _WIN32
@@ -35,6 +35,9 @@ inline Cache& cache() noexcept {
   return cache;
 }
 }  // namespace detail
+
+namespace current_thread {
+
 int64_t id() noexcept { return detail::cache().tid; }
 bool is_main() noexcept { return id() == detail::get_tid(); }
 void set_thread_name(const std::string& name) noexcept {
@@ -44,4 +47,6 @@ void set_thread_name(const std::string& name) noexcept {
   buf[kMax - 1] = '\0';
 }
 std::string thread_name() noexcept { return detail::cache().threadName; }
+
 }  // namespace current_thread
+}  // namespace common::base

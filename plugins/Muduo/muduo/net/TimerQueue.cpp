@@ -25,20 +25,22 @@ int createTimerfd() {
   return timerfd;
 }
 
-timespec howMuchTimeFromNow(const Timestamp& when) {
-  int64_t microseconds = when.micro_seconds_since_epoch() -
-                         Timestamp::now().micro_seconds_since_epoch();
+timespec howMuchTimeFromNow(const common::base::Timestamp& when) {
+  int64_t microseconds =
+      when.micro_seconds_since_epoch() -
+      common::base::Timestamp::now().micro_seconds_since_epoch();
   if (microseconds < 100) {
     microseconds = 100;
   }
   timespec ts{};
-  ts.tv_sec =
-      static_cast<time_t>(microseconds / Timestamp::kMicroSecondsPerSecond);
-  ts.tv_nsec = (microseconds % Timestamp::kMicroSecondsPerSecond) * 1000;
+  ts.tv_sec = static_cast<time_t>(
+      microseconds / common::base::Timestamp::kMicroSecondsPerSecond);
+  ts.tv_nsec =
+      (microseconds % common::base::Timestamp::kMicroSecondsPerSecond) * 1000;
   return ts;
 }
 
-void readTimerfd(int timerfd, const Timestamp& now) {
+void readTimerfd(int timerfd, const common::base::Timestamp& now) {
   uint64_t howmany;
   ssize_t n = read(timerfd, &howmany, sizeof(howmany));
   LOG_INFO("TimerQueue::handleRead() {} at {}", howmany, now.to_string());
@@ -47,7 +49,7 @@ void readTimerfd(int timerfd, const Timestamp& now) {
   }
 }
 
-void resetTimerfd(int timerfd, const Timestamp& expiration) {
+void resetTimerfd(int timerfd, const common::base::Timestamp& expiration) {
   itimerspec newValue{};
   itimerspec oldValue{};
   newValue.it_value = howMuchTimeFromNow(expiration);
@@ -66,7 +68,7 @@ TimerQueue::TimerQueue(EventLoop* loop)
       timerfdChannel_(loop, timerfd_),
       callingExpiredTimers_(false) {
   timerfdChannel_.setReadCallback(
-      [this](const Timestamp&) { this->handleRead(); });
+      [this](const common::base::Timestamp&) { this->handleRead(); });
   timerfdChannel_.enableReading();
 }
 
@@ -77,8 +79,8 @@ TimerQueue::~TimerQueue() {
   }
 }
 
-TimerId TimerQueue::addTimer(const TimerCallback& cb, Timestamp when,
-                             double interval) {
+TimerId TimerQueue::addTimer(const TimerCallback& cb,
+                             common::base::Timestamp when, double interval) {
   auto* timer = new Timer(cb, when, interval);
   // 可以跨线程使用
   loop_->runInLoop([this, timer] { addTimerInLoop(timer); });
@@ -121,7 +123,7 @@ void TimerQueue::cancelInLoop(TimerId timerId) {
 
 void TimerQueue::handleRead() {
   loop_->assertInLoopThread();
-  Timestamp now(Timestamp::now());
+  common::base::Timestamp now(common::base::Timestamp::now());
   readTimerfd(timerfd_, now);  // 清除该事件 避免一直触发
 
   // 获取该时刻之前所有的定时器列表
@@ -144,7 +146,8 @@ void TimerQueue::handleRead() {
   reset(expired, now);
 }
 
-std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now) {
+std::vector<TimerQueue::Entry> TimerQueue::getExpired(
+    common::base::Timestamp now) {
   assert(timers_.size() == activeTimers_.size());
   std::vector<Entry> expired;
   Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
@@ -169,8 +172,9 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now) {
   return expired;
 }
 
-void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now) {
-  Timestamp nextExpire;
+void TimerQueue::reset(const std::vector<Entry>& expired,
+                       common::base::Timestamp now) {
+  common::base::Timestamp nextExpire;
   for (const auto& it : expired) {
     ActiveTimer timer(it.second, it.second->sequence());
     // 如果是重复的定时器并且是未取消定时器,则重启该定时器
@@ -198,7 +202,7 @@ bool TimerQueue::insert(Timer* timer) {
   assert(timers_.size() == activeTimers_.size());
   // 最早到期时间是否改变
   bool earliestChanged = false;
-  Timestamp when = timer->expiration();
+  common::base::Timestamp when = timer->expiration();
   auto it = timers_.begin();
   // 如果timers_为空或者when小于timers_中的最早到期时间
   if (it == timers_.end() || when < it->first) {

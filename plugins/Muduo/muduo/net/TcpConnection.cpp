@@ -14,7 +14,8 @@ void defaultConnectionCallback(const TcpConnectionPtr& conn) {
            (conn->connected()) ? "UP" : "DOWN");
 }
 
-void defaultMessageCallback(const TcpConnectionPtr&, Buffer* buf, Timestamp) {
+void defaultMessageCallback(const TcpConnectionPtr&, Buffer* buf,
+                            common::base::Timestamp) {
   buf->retrieveAll();
 }
 
@@ -30,8 +31,9 @@ TcpConnection::TcpConnection(EventLoop* loop, std::string name, int sockfd,
       peerAddr_(peerAddr),
       context_(nullptr) {
   // 通道可读事件到来的时候,回调TcpConnection::handleRead,_1是事件发生时间
-  channel_->setReadCallback(
-      [this](const Timestamp& receiveTime) { handleRead(receiveTime); });
+  channel_->setReadCallback([this](const common::base::Timestamp& receiveTime) {
+    handleRead(receiveTime);
+  });
   // 通道可写事件到来的时候,回调TcpConnection::handleWrite
   channel_->setWriteCallback([this] { handleWrite(); });
   // 连接关闭,回调TcpConnection::handleClose
@@ -75,7 +77,7 @@ void TcpConnection::connectEstablished() {
   connectionCallback_(shared_from_this());
 }
 
-void TcpConnection::handleRead(Timestamp receiveTime) {
+void TcpConnection::handleRead(common::base::Timestamp receiveTime) {
   loop_->assertInLoopThread();
   int saveErrno = 0;
   ssize_t n = inputBuffer_.readFd(channel_->fd(), &saveErrno);

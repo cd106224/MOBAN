@@ -17,11 +17,12 @@ class TimerQueue : noncopyable {
   ~TimerQueue();
 
   // 增加定时器 一定是线程安全的，可以跨线程使用，通常情况下被其他线程调用
-  TimerId addTimer(const TimerCallback& cb, Timestamp when, double interval);
+  TimerId addTimer(const TimerCallback& cb, common::base::Timestamp when,
+                   double interval);
   // 取消一个定时器
   void cancel(TimerId timerid);
 
-  using Entry = std::pair<Timestamp, Timer*>;
+  using Entry = std::pair<common::base::Timestamp, Timer*>;
   using TimerList = std::set<Entry>;
   using ActiveTimer = std::pair<Timer*, int64_t>;
   using ActiveTimerSet = std::set<ActiveTimer>;
@@ -32,9 +33,9 @@ class TimerQueue : noncopyable {
   void cancelInLoop(TimerId timerId);
   void handleRead();
   // 返回超时的定时器列表
-  std::vector<Entry> getExpired(Timestamp now);
+  std::vector<Entry> getExpired(common::base::Timestamp now);
   // 重置超时的定时器
-  void reset(const std::vector<Entry>& expired, Timestamp now);
+  void reset(const std::vector<Entry>& expired, common::base::Timestamp now);
   bool insert(Timer* timer);
 
  protected:

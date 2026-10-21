@@ -46,7 +46,8 @@ int main() {
       });
 
   tcp_server.setMessageCallback([](const Muduo::TcpConnectionPtr& conn,
-                                   Muduo::Buffer* buffer, Timestamp time) {
+                                   Muduo::Buffer* buffer,
+                                   common::base::Timestamp time) {
     auto* ctx = conn->getMutableContext();
     if (ctx->has_value()) {
       auto session = std::any_cast<std::shared_ptr<ftp::FtpSession>>(*ctx);

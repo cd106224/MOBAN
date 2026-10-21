@@ -5,6 +5,10 @@
 #include <chrono>
 #include <thread>
 
+using common::base::add_time;
+using common::base::time_difference;
+using common::base::Timestamp;
+
 class TimestampTest : public ::testing::Test {
  protected:
   void SetUp() override {}

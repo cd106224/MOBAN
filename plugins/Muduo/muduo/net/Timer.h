@@ -9,18 +9,18 @@
 namespace Muduo {
 class Timer : noncopyable {
  public:
-  Timer(TimerCallback cb, const Timestamp& when, double interval);
+  Timer(TimerCallback cb, const common::base::Timestamp& when, double interval);
   ~Timer() = default;
   void run() const;
-  Timestamp expiration();
+  common::base::Timestamp expiration();
   bool repeat() const;
   int64_t sequence() const;
-  void restart(Timestamp now);
+  void restart(common::base::Timestamp now);
   static int64_t numCreated();
 
  protected:
   const TimerCallback callback_;
-  Timestamp expiration_;
+  common::base::Timestamp expiration_;
   const double interval_;
   const bool repeat_;
   const int64_t sequence_;

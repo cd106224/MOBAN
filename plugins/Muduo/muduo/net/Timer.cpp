@@ -5,7 +5,8 @@
 namespace Muduo {
 std::atomic_int64_t Timer::numCreated_;
 
-Timer::Timer(TimerCallback cb, const Timestamp& when, double interval)
+Timer::Timer(TimerCallback cb, const common::base::Timestamp& when,
+             double interval)
     : callback_(std::move(cb)),
       expiration_(when),
       interval_(interval),
@@ -14,17 +15,17 @@ Timer::Timer(TimerCallback cb, const Timestamp& when, double interval)
 
 void Timer::run() const { callback_(); }
 
-Timestamp Timer::expiration() { return expiration_; }
+common::base::Timestamp Timer::expiration() { return expiration_; }
 
 bool Timer::repeat() const { return repeat_; }
 
 int64_t Timer::sequence() const { return sequence_; }
 
-void Timer::restart(Timestamp now) {
+void Timer::restart(common::base::Timestamp now) {
   if (repeat_) {
-    expiration_ = add_time(now, interval_);
+    expiration_ = common::base::add_time(now, interval_);
   } else {
-    expiration_ = Timestamp::invalid();
+    expiration_ = common::base::Timestamp::invalid();
   }
 }
 

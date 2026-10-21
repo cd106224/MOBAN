@@ -49,7 +49,7 @@ EventLoop::EventLoop()
       started_(false),
       eventHandling_(false),
       callingPendingFunctors_(false),
-      threadId_(current_thread::id()),
+      threadId_(common::base::current_thread::id()),
       poller_(new EPollPoller(this)),
       timerQueue_(new TimerQueue(this)),
       wakeupFd_(createEventfd()),
@@ -66,7 +66,8 @@ EventLoop::EventLoop()
   } else {
     t_loopInThisThread = this;
   }
-  wakeupChannel_->setReadCallback([this](const Timestamp&) { handleRead(); });
+  wakeupChannel_->setReadCallback(
+      [this](const common::base::Timestamp&) { handleRead(); });
   wakeupChannel_->enableReading();
 }
 
@@ -110,13 +111,16 @@ void EventLoop::assertInLoopThread() {
   }
 }
 
-bool EventLoop::isInLoopThread() { return threadId_ == current_thread::id(); }
+bool EventLoop::isInLoopThread() {
+  return threadId_ == common::base::current_thread::id();
+}
 
 void EventLoop::abortNotInLoopThread() {
   LOG_ERROR(
       "EventLoop::abortNotInLoopThread-EventLoop {} was created in "
       "threadId={},current threadId={}",
-      static_cast<const void*>(this), threadId_, current_thread::id());
+      static_cast<const void*>(this), threadId_,
+      common::base::current_thread::id());
   exit(EXIT_FAILURE);
 }
 
@@ -137,7 +141,7 @@ void EventLoop::removeChannel(Channel* channel) {
   poller_->removeChannel(channel);
 }
 
-Timestamp EventLoop::pollReturnTime() { return pollReturnTime_; }
+common::base::Timestamp EventLoop::pollReturnTime() { return pollReturnTime_; }
 
 // 该函数可以跨线程调用
 void EventLoop::quit() {
@@ -147,17 +151,20 @@ void EventLoop::quit() {
   }
 }
 
-TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb) {
+TimerId EventLoop::runAt(const common::base::Timestamp& time,
+                         const TimerCallback& cb) {
   return timerQueue_->addTimer(cb, time, 0.0);
 }
 
 TimerId EventLoop::runAfter(double delay, const TimerCallback& cb) {
-  Timestamp time(add_time(Timestamp::now(), delay));
+  common::base::Timestamp time(
+      common::base::add_time(common::base::Timestamp::now(), delay));
   return runAt(time, cb);
 }
 
 TimerId EventLoop::runEvery(double interval, const TimerCallback& cb) {
-  Timestamp time(add_time(Timestamp::now(), interval));
+  common::base::Timestamp time(
+      common::base::add_time(common::base::Timestamp::now(), interval));
   return timerQueue_->addTimer(cb, time, interval);
 }
 

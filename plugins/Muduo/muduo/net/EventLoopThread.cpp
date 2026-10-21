@@ -11,7 +11,8 @@ EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
       mutex_(),
       cond_(),
       callback_(cb),
-      thread_(Thread::Create("EventLoopThread", [this] { threadFunc(); })) {}
+      thread_(common::base::Thread::Create("EventLoopThread",
+                                           [this] { threadFunc(); })) {}
 
 EventLoopThread::~EventLoopThread() {
   exiting_ = true;

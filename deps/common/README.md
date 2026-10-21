@@ -74,8 +74,8 @@ example/  ──►  plugins/  ──►  common/  ──►  deps/third_party/
   尾部下划线；常量 `kCamelCase`；头文件名小写下划线，且与主要类型同名
   （`config.h` / `config_value.h`）。
 - **命名空间**：统一用 `common::<模块>`（`common::log`、`common::base`、
-  `common::config`、`common::util`）。现存仍在全局命名空间的类型
-  （`Config`、`Thread`、`Timestamp`）在有第二个调用方时迁入。
+  `common::config`、`common::util`）。`base/`、`utilities/`、`log/` 已迁入，
+  `config/` 仍留在全局命名空间，有第二个调用方时迁入 `common::config`。
 - **头文件自包含**：每个头文件单独编译通过（`#include` 它不需要先包含别的头）。
 - **包含顺序**：自身头文件最前，其余由 clang-format（Google 风格，80 列）自动
   分组排序，不手工干预。
@@ -121,7 +121,7 @@ CI（`.github/workflows/build.yml`）在 push/PR 到 `master` 时执行
 
 | 项 | 现状 | 处理 |
 | --- | --- | --- |
-| 命名空间 | `Config`、`Thread`、`Timestamp` 等在全局 | 逐步迁入 `common::` |
+| 命名空间 | `base/`、`utilities/`、`log/` 已迁入 `common::`；`config/` 仍在全局 | `Config` 等迁入 `common::config` |
 | 目标划分 | 单一 `lib_common` 静态库 | 按模块拆成独立 target，让业务只链接需要的部分 |
 | 分发方式 | 无 `install`/`export`，只能在 MOBAN 内使用 | 补 install rules + 导出配置，使 common 可被其他仓库 `find_package` 消费 |
 | boost 依赖 | `timestamp.h` 为 `boost::totally_ordered1` 引入整个 boost | 手写 `<=`/`>`/`>=` 后移除该依赖 |

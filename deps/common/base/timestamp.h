@@ -1,7 +1,11 @@
 #pragma once
 
 #include <boost/operators.hpp>
+#include <cstdint>
+#include <ctime>
 #include <string>
+
+namespace common::base {
 
 class Timestamp : boost::totally_ordered1<Timestamp> {
  public:
@@ -74,3 +78,5 @@ inline Timestamp add_time(const Timestamp& timestamp, double seconds) {
       static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);
   return Timestamp(timestamp.micro_seconds_since_epoch() + delta);
 }
+
+}  // namespace common::base

@@ -24,7 +24,7 @@ class EPollPoller : noncopyable {
   ~EPollPoller();
 
   // 封装了epoll_wait
-  Timestamp poll(int32_t timeoutMs, ChannelList* activeChannels);
+  common::base::Timestamp poll(int32_t timeoutMs, ChannelList* activeChannels);
   void updateChannel(Channel* channel);
   void removeChannel(Channel* channel);
   void assertInLoopThread();

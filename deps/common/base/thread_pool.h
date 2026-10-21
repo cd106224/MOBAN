@@ -9,6 +9,8 @@
 
 #include "thread.h"
 
+namespace common::base {
+
 class ThreadPool {
  public:
   using Task = std::function<void()>;
@@ -41,3 +43,5 @@ class ThreadPool {
   std::mutex mutex_;
   std::condition_variable cond_;
 };
+
+}  // namespace common::base
