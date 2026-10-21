@@ -85,6 +85,11 @@ example/  ──►  plugins/  ──►  common/  ──►  deps/third_party/
   （文件路径、配置字段路径等）。异常类型按语义区分：配置类错误用 `ConfigError`
   这类业务异常，系统调用失败用 `std::system_error`。
 - **资源管理**：一律 RAII，禁止裸 `new`/`delete`、裸 `close`/`fclose`。
+- **参数类型**：路径、文件名这类"要交给 C 接口的文本"用 `const std::string&`——
+  `std::string` 保证 NUL 结尾，可以直接给 `open(2)`/`stat(2)`，不用在实现里
+  再物化一份。只读的内容片段用 `std::string_view`（如 `config` 解析出来的
+  配置内容）。同一个函数不要同时提供两种重载：字面量调用会因转换歧义编译
+  失败。
 - **线程安全**：默认**不**线程安全；确为线程安全的要在接口注释里写明。
 - **禁止静默失败**：解析失败、类型不匹配等都要报错，不能悄悄用默认值兜底。
 
@@ -121,7 +126,7 @@ CI（`.github/workflows/build.yml`）在 push/PR 到 `master` 时执行
 | 分发方式 | 无 `install`/`export`，只能在 MOBAN 内使用 | 补 install rules + 导出配置，使 common 可被其他仓库 `find_package` 消费 |
 | boost 依赖 | `timestamp.h` 为 `boost::totally_ordered1` 引入整个 boost | 手写 `<=`/`>`/`>=` 后移除该依赖 |
 | spdlog 暴露 | `logging.h` 直接暴露 `spdlog::logger` | 后续用自有类型封装 |
-| 测试覆盖 | `base/` 有部分用例，`utilities/`、`config/` 之外的模块基本没有 | 随新组件补齐 |
+| 测试覆盖 | `base/`、`utilities/` 有用例，`config/` 之外的模块基本没有 | 随新组件补齐 |
 
 ## 9. 待补齐清单
 
@@ -130,7 +135,7 @@ CI（`.github/workflows/build.yml`）在 push/PR 到 `master` 时执行
 | 优先级 | 模块 | 内容 |
 | --- | --- | --- |
 | P0 | `utilities/string_utils` | trim、split、join、大小写转换、前后缀判断、替换、安全数字转换（带错误检查）——**已完成**，命名空间 `common::util` |
-| P0 | `utilities/file_utils` | 文件读写、存在性/类型/大小判断、目录列举、原子写（临时文件 + rename） |
+| P0 | `utilities/file_utils` | 文件读写、存在性/类型/大小判断、目录列举、原子写（临时文件 + rename）——**已完成**，命名空间 `common::util`，路径参数用 `const std::string&` |
 | P0 | `utilities/path_utils` | 路径拼接、规范化（消解 `.`/`..`）、扩展名与分隔符处理 |
 | P0 | `utilities/temp_file` | 临时文件 / 临时目录 RAII，供测试与运行时使用 |
 | P1 | `base/error` | errno → 异常的系统调用封装、`Result`/`Status` 风格返回类型 |

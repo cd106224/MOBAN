@@ -1,7 +1,6 @@
 #include "string_utils.h"
 
 #include <charconv>
-#include <clocale>
 #include <cmath>
 #include <cstdlib>
 #include <stdexcept>
