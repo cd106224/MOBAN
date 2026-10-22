@@ -9,16 +9,18 @@
 
 #include "thread.h"
 
+namespace common::base {
+
 class ThreadPool {
  public:
   using Task = std::function<void()>;
-  explicit ThreadPool(const std::string &name = "ThreadPool");
+  explicit ThreadPool(const std::string& name = "ThreadPool");
   ~ThreadPool();
   void start(const int numThread);
   void stop();
 
   template <typename F>
-  void run(F &&f) {
+  void run(F&& f) {
     {
       std::lock_guard<std::mutex> lk(mutex_);
       if (!running_.load(std::memory_order_relaxed)) {
@@ -30,7 +32,7 @@ class ThreadPool {
   }
 
  protected:
-  void runInThread();
+  void run_in_thread();
 
   std::string name_;
   std::vector<std::shared_ptr<Thread>> threads_;
@@ -41,3 +43,5 @@ class ThreadPool {
   std::mutex mutex_;
   std::condition_variable cond_;
 };
+
+}  // namespace common::base

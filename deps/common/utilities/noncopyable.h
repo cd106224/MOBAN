@@ -3,11 +3,11 @@
 class noncopyable {
  public:
   noncopyable(const noncopyable&) = delete;
-  noncopyable operator=(const noncopyable&) = delete;
+  noncopyable& operator=(const noncopyable&) = delete;
 
  protected:
   noncopyable() = default;
-  virtual ~noncopyable() = default;
+  ~noncopyable() = default;
 };
 
 // Macros to disable copying and moving

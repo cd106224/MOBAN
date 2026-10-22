@@ -5,6 +5,8 @@
 #include <atomic>
 #include <chrono>
 
+using common::base::ThreadPool;
+
 class ThreadPoolTest : public ::testing::Test {
  protected:
   void SetUp() override { pool_ = std::make_unique<ThreadPool>("TestPool"); }

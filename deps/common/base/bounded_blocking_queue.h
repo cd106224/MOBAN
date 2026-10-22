@@ -1,9 +1,12 @@
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <optional>
 #include <vector>
+
+namespace common::base {
 
 template <typename T>
 class BoundedBlockingQueue {
@@ -12,71 +15,71 @@ class BoundedBlockingQueue {
     buffer_.resize(max_size_);
   }
 
-  ~BoundedBlockingQueue() { Stop(); }
+  ~BoundedBlockingQueue() { stop(); }
 
   BoundedBlockingQueue(const BoundedBlockingQueue&) = delete;
   BoundedBlockingQueue& operator=(const BoundedBlockingQueue&) = delete;
 
-  void Stop() {
+  void stop() {
     std::lock_guard<std::mutex> lock(mu_);
     stopped_ = true;
     cv_empty_.notify_all();
     cv_full_.notify_all();
   }
 
-  void Push(const T& value) {
+  void push(const T& value) {
     std::unique_lock<std::mutex> lock(mu_);
-    cv_full_.wait(lock, [this] { return !IsFullLocked() || stopped_; });
+    cv_full_.wait(lock, [this] { return !is_full_locked() || stopped_; });
     if (stopped_) return;
-    EmplaceInternal(value);
+    emplace_internal(value);
   }
 
-  bool TryPush(const T& value) {
+  bool try_push(const T& value) {
     std::lock_guard<std::mutex> lock(mu_);
-    if (IsFullLocked() || stopped_) return false;
-    EmplaceInternal(value);
+    if (is_full_locked() || stopped_) return false;
+    emplace_internal(value);
     return true;
   }
 
-  std::optional<T> Pop() {
+  std::optional<T> pop() {
     std::unique_lock<std::mutex> lock(mu_);
-    cv_empty_.wait(lock, [this] { return !IsEmptyLocked() || stopped_; });
+    cv_empty_.wait(lock, [this] { return !is_empty_locked() || stopped_; });
     if (stopped_) return std::nullopt;
-    return PopInternal();
+    return pop_internal();
   }
 
   template <typename Rep, typename Period>
-  std::optional<T> TryPopFor(
+  std::optional<T> try_pop_for(
       const std::chrono::duration<Rep, Period>& timeout) {
     std::unique_lock<std::mutex> lock(mu_);
-    if (!cv_empty_.wait_for(lock, timeout,
-                            [this] { return !IsEmptyLocked() || stopped_; })) {
+    if (!cv_empty_.wait_for(
+            lock, timeout, [this] { return !is_empty_locked() || stopped_; })) {
       return std::nullopt;
     }
     if (stopped_) return std::nullopt;
-    return PopInternal();
+    return pop_internal();
   }
 
-  size_t Size() const {
+  size_t size() const {
     std::lock_guard<std::mutex> lock(mu_);
     return size_;
   }
 
-  size_t MaxSize() const { return max_size_; }
+  size_t max_size() const { return max_size_; }
 
  private:
-  bool IsEmptyLocked() const { return size_ == 0; }
-  bool IsFullLocked() const { return size_ == max_size_; }
+  bool is_empty_locked() const { return size_ == 0; }
+  bool is_full_locked() const { return size_ == max_size_; }
 
   template <typename U>
-  void EmplaceInternal(U&& value) {
+  void emplace_internal(U&& value) {
     buffer_[back_] = std::forward<U>(value);
     back_ = (back_ + 1) % max_size_;
     ++size_;
     cv_empty_.notify_one();
   }
 
-  T PopInternal() {
+  T pop_internal() {
     T value = std::move(buffer_[front_]);
     front_ = (front_ + 1) % max_size_;
     --size_;
@@ -95,3 +98,5 @@ class BoundedBlockingQueue {
   size_t back_ = 0;
   bool stopped_ = false;
 };
+
+}  // namespace common::base

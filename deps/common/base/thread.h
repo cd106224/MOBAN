@@ -1,15 +1,21 @@
 #pragma once
 
+#include <sys/types.h>
+
+#include <cstdint>
 #include <functional>
 #include <future>
+#include <memory>
 #include <string>
 #include <thread>
+
+namespace common::base {
 
 class Thread {
  public:
   template <typename Func, typename... Args>
   static Thread Create(const std::string& name, Func&& func, Args&&... args) {
-    return StartThread(name, std::bind(func, std::forward<Args>(args)...));
+    return start_thread(name, std::bind(func, std::forward<Args>(args)...));
   }
   Thread(const Thread&) = delete;
   Thread(Thread&&) = default;
@@ -27,12 +33,14 @@ class Thread {
 
  private:
   explicit Thread(const std::string& name);
-  static Thread StartThread(const std::string& name,
-                            const std::function<void()>& func);
-  static void MonitorThread(const std::function<void()>& func,
-                            std::promise<pid_t>* tid,
-                            const std::string& thread_name);
+  static Thread start_thread(const std::string& name,
+                             const std::function<void()>& func);
+  static void monitor_thread(const std::function<void()>& func,
+                             std::promise<pid_t>* tid,
+                             const std::string& thread_name);
   std::unique_ptr<std::thread> thread_;
   const std::string name_{};
   pid_t tid_{-2};
 };
+
+}  // namespace common::base

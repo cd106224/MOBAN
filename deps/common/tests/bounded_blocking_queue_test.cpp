@@ -6,6 +6,8 @@
 #include <thread>
 #include <vector>
 
+using common::base::BoundedBlockingQueue;
+
 class BoundedBlockingQueueTest : public ::testing::Test {
  protected:
   BoundedBlockingQueue<int> queue_{2};
@@ -16,23 +18,23 @@ class BoundedBlockingQueueTest : public ::testing::Test {
 //----------------------------------------
 
 TEST_F(BoundedBlockingQueueTest, PushPopWorks) {
-  EXPECT_TRUE(queue_.TryPush(1));
-  EXPECT_TRUE(queue_.TryPush(2));
-  EXPECT_EQ(queue_.Size(), 2u);
+  EXPECT_TRUE(queue_.try_push(1));
+  EXPECT_TRUE(queue_.try_push(2));
+  EXPECT_EQ(queue_.size(), 2u);
 
-  EXPECT_EQ(queue_.Pop(), 1);
-  EXPECT_EQ(queue_.Pop(), 2);
-  EXPECT_EQ(queue_.Size(), 0u);
+  EXPECT_EQ(queue_.pop(), 1);
+  EXPECT_EQ(queue_.pop(), 2);
+  EXPECT_EQ(queue_.size(), 0u);
 }
 
 TEST_F(BoundedBlockingQueueTest, TryPushFailsWhenFull) {
-  EXPECT_TRUE(queue_.TryPush(1));
-  EXPECT_TRUE(queue_.TryPush(2));
-  EXPECT_FALSE(queue_.TryPush(3));  // full
+  EXPECT_TRUE(queue_.try_push(1));
+  EXPECT_TRUE(queue_.try_push(2));
+  EXPECT_FALSE(queue_.try_push(3));  // full
 }
 
 TEST_F(BoundedBlockingQueueTest, TryPopForTimesOut) {
-  EXPECT_EQ(queue_.TryPopFor(std::chrono::milliseconds(10)), std::nullopt);
+  EXPECT_EQ(queue_.try_pop_for(std::chrono::milliseconds(10)), std::nullopt);
 }
 
 //----------------------------------------
@@ -44,14 +46,14 @@ TEST_F(BoundedBlockingQueueTest, ConcurrentProducerConsumer) {
 
   std::thread producer([this] {
     for (int i = 0; i < kItems; ++i) {
-      queue_.Push(i);
+      queue_.push(i);
     }
   });
 
   std::thread consumer([this] {
     int sum = 0;
     for (int i = 0; i < kItems; ++i) {
-      sum += queue_.Pop().value_or(-1);
+      sum += queue_.pop().value_or(-1);
     }
     EXPECT_EQ(sum, (kItems - 1) * kItems / 2);  // 0..kItems-1
   });
@@ -83,7 +85,7 @@ TEST_F(BoundedBlockingQueueTest, StopUnblocksBlockedPop) {
         std::this_thread::yield();
 
       // 此时队列空，应该阻塞
-      results[i] = queue_.Pop();
+      results[i] = queue_.pop();
     });
   }
 
@@ -96,7 +98,7 @@ TEST_F(BoundedBlockingQueueTest, StopUnblocksBlockedPop) {
   may_block.store(true, std::memory_order_release);
 
   // 5. 此刻所有 waiter 阻塞；调用 Stop() 必须唤醒它们
-  queue_.Stop();
+  queue_.stop();
 
   for (auto& t : waiters) t.join();
 

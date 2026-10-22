@@ -4,6 +4,9 @@
 #include <mutex>
 #include <optional>
 #include <queue>
+#include <stdexcept>
+
+namespace common::base {
 
 template <typename T>
 class BlockingQueue {
@@ -83,3 +86,5 @@ class BlockingQueue {
   std::queue<T> q_;
   bool done_{false};
 };
+
+}  // namespace common::base

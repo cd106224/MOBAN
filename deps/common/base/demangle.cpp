@@ -2,9 +2,15 @@
 
 #include <cxxabi.h>
 
-static DemangleResult try_demangle(const char* name, int& status) {
+namespace common::base {
+
+namespace {
+
+DemangleResult try_demangle(const char* name, int& status) {
   return DemangleResult(abi::__cxa_demangle(name, nullptr, nullptr, &status));
 }
+
+}  // namespace
 
 DemangleResult try_demangle(const char* name) {
   int status = 0;
@@ -19,3 +25,5 @@ std::string demangle(const char* name, int& status) {
 
   return name;
 }
+
+}  // namespace common::base

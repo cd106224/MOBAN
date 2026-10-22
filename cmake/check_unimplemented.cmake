@@ -16,6 +16,7 @@ set(CHECK_DIRS
         "${CMAKE_SOURCE_DIR}/deps/common"
         "${CMAKE_SOURCE_DIR}/tests"
         "${CMAKE_SOURCE_DIR}/plugins"
+        "${CMAKE_SOURCE_DIR}/example"
 )
 
 add_custom_target(check-unimplemented

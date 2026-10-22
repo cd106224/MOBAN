@@ -8,7 +8,9 @@ function(_add_gtest TEST_SOURCES)
     set(DEFAULT_LIBS _gtest_main _gtest pthread)
     set(options "")
     set(one_value_args "")
-    set(multi_value_args LINK_LIBS)
+    # 未声明的 keyword 不会被报错，而是被吞进紧邻的 multi_value_args，
+    # 所以每加一个可选参数都必须在这里登记。
+    set(multi_value_args LINK_LIBS COMPILE_DEFINITIONS)
     cmake_parse_arguments(_add_gtest "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
     if (NOT _add_gtest_LINK_LIBS)
         set(_add_gtest_LINK_LIBS ${DEFAULT_LIBS})
@@ -31,6 +33,11 @@ function(_add_gtest TEST_SOURCES)
         target_link_libraries(${test_name} PRIVATE
                 ${_add_gtest_LINK_LIBS}
         )
+        if (_add_gtest_COMPILE_DEFINITIONS)
+            target_compile_definitions(${test_name} PRIVATE
+                    ${_add_gtest_COMPILE_DEFINITIONS}
+            )
+        endif ()
         set_target_properties(${test_name}
                 PROPERTIES
                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"

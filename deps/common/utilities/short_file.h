@@ -1,27 +1,20 @@
 #pragma once
 
-using cstr = const char* const;
+// 递归找最后一个 / 或者 \
 
-static constexpr cstr past_last_slash(cstr str, cstr last_slash) {
-  return *str == '\0' ? last_slash
-                      : *str == '/' ? past_last_slash(str + 1, str + 1)
-                                    : past_last_slash(str + 1, last_slash);
+static constexpr const char* past_last_slash(const char* str,
+                                             const char* last_pos) {
+  return *str == '\0'                    ? last_pos
+         : (*str == '/' || *str == '\\') ? past_last_slash(str + 1, str + 1)
+                                         : past_last_slash(str + 1, last_pos);
 }
 
-static constexpr cstr past_last_slash(cstr str) {
+static constexpr const char* past_last_slash(const char* str) {
   return past_last_slash(str, str);
 }
 
-/**
- * @brief 获取当前文件名的宏
- *
- * 在做一些日志输出的工作时，想要获取当前文件名，而不是冗长的文件路径。
- * 我们希望能够在编译期而不是在运行期做这个事情，避免额外的性能消耗。
- *
- * 摘自https://www.cnblogs.com/shijiashuai/p/14410321.html
- */
-#define __SHORT_FILE__                              \
-  ({                                                \
-    constexpr cstr sf__{past_last_slash(__FILE__)}; \
-    sf__;                                           \
-  })
+// 重点：去掉 ({})，用函数直接返回，不需要GNU扩展
+#define SHORT_FILE past_last_slash(__FILE__)
+
+// 使用示例
+// printf("%s:%d\n", SHORT_FILE, __LINE__);

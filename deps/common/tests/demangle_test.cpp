@@ -2,6 +2,9 @@
 
 #include <gtest/gtest.h>
 
+using common::base::demangle;
+using common::base::try_demangle;
+
 TEST(DemangleTest, DemangleTest) {
   // 测试正常的C++符号名称解析
   int status = 0;
