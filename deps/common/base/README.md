@@ -125,6 +125,14 @@ q.shutdown();                        // 让阻塞在 take() 上的线程醒来
   `std::runtime_error("queue is closed")`**；关闭后队列里已有的元素仍会被正常取出。
 - `shutdown()` 后 `put()` 仍然允许写入（不会被拒），但没人再取 —— 元素会留在队列里。
 - `put` 有 `const T&` 和 `T&&` 两个重载。传字符串字面量不会歧义（`T&&` 重载更优）。
+- **销毁前必须先 `shutdown()`，再 join 所有可能阻塞在 `take()` 中的消费者线程。**
+  析构函数是 `= default`，不做任何唤醒：`notify_all()` 唤醒的线程还要重新去抢 `mtx_`，
+  那时 mutex 可能已经被析构。只 `shutdown()` 而不 join，销毁仍是未定义行为。
+- 本类**不可拷贝也不可移动**：成员 `std::mutex` / `std::condition_variable` 都不可移动
+  （移动 mutex 等于"复制一份锁状态"，副本和新对象不是同一把锁）。所以移动构造/赋值写的是
+  `= delete` 而不是 `= default` —— `= default` 在首次声明时若隐式定义会 ill-formed，会被
+  **静默定义成 deleted**，不报错、不拒绝编译，诊断推迟到使用点才炸。
+  连带影响：不能放进 `std::vector`，不能作为可移动类的成员，也不能按值返回。
 
 ### 5.2 `BoundedBlockingQueue` —— 定长环形缓冲
 

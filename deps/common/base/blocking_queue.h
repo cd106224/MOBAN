@@ -14,11 +14,10 @@ class BlockingQueue {
   BlockingQueue() = default;
   ~BlockingQueue() = default;
 
-  // 禁用拷贝，保留移动
   BlockingQueue(const BlockingQueue&) = delete;
   BlockingQueue& operator=(const BlockingQueue&) = delete;
-  BlockingQueue(BlockingQueue&&) = default;
-  BlockingQueue& operator=(BlockingQueue&&) = default;
+  BlockingQueue(BlockingQueue&&) = delete;
+  BlockingQueue& operator=(BlockingQueue&&) = delete;
 
   // 生产者接口
   void put(const T& value) {
