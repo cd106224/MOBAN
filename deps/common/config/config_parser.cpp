@@ -1,5 +1,7 @@
 #include "config_parser.h"
 
+namespace common::config {
+
 ConfigValue parse_config(std::string_view content, ConfigFormat format) {
   switch (format) {
     case ConfigFormat::Json:
@@ -27,3 +29,5 @@ ConfigFormat config_format_from_extension(std::string_view path) {
   throw ConfigError("cannot infer config format from file '" +
                     std::string(path) + "', supported extensions: .json");
 }
+
+}  // namespace common::config

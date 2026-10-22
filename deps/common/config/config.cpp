@@ -10,6 +10,8 @@
 
 #include "config_parser.h"
 
+namespace common::config {
+
 namespace {
 
 bool is_index(std::string_view segment) {
@@ -143,3 +145,5 @@ template float Config::get_or<float>(std::string_view, float) const;
 template double Config::get_or<double>(std::string_view, double) const;
 template std::string Config::get_or<std::string>(std::string_view,
                                                  std::string) const;
+
+}  // namespace common::config

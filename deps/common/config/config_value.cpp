@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+namespace common::config {
+
 namespace {
 
 const char* type_name(ConfigValue::Type type) {
@@ -182,3 +184,5 @@ void ConfigValue::throw_missing_key(std::string_view key) const {
       << "' not found";
   throw ConfigError(oss.str());
 }
+
+}  // namespace common::config

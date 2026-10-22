@@ -8,6 +8,8 @@
 
 #include "config_parser.h"
 
+namespace common::config {
+
 namespace {
 
 ConfigValue convert(const rapidjson::Value& node, std::string path) {
@@ -109,3 +111,5 @@ ConfigValue parse_json(std::string_view content) {
   }
   return convert(document, std::string());
 }
+
+}  // namespace common::config

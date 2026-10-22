@@ -4,6 +4,8 @@
 
 #include "config_value.h"
 
+namespace common::config {
+
 // 配置的来源格式。解析由 config_parser.h 里的后端分发完成，Config 本身
 // 不感知具体格式：新增 Xml 后端时只要在 config_parser.h 里加一个解析入口
 // 和一个枚举项，这里的读取逻辑无需改动。
@@ -44,3 +46,5 @@ class Config {
   ConfigValue root_;
   bool loaded_ = false;
 };
+
+}  // namespace common::config
