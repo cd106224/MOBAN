@@ -103,7 +103,9 @@ bool main = common::base::current_thread::is_main();
 - `id()`：缓存的 tid。首次访问时通过 `syscall(SYS_gettid)` 取一次，之后直接读缓存。
 - `set_thread_name(name)`：写入 32 字节的线程名缓冲，超长会被截断（`strncpy` + 手动补 `'\0'`）。
   线程名默认是 `"unKnown"`。
-- `is_main()`：**见 §6，当前实现恒为 true**。
+- `is_main()`：判断当前线程是不是主线程。基准是主线程的 tid —— Linux 上就是
+  `getpid()`（主线程 tid == 进程 pid）；Windows 上没有这个等价关系，改为进程启动
+  阶段由主线程捕获一次。
 
 ---
 
@@ -209,49 +211,7 @@ common::base::DemangleResult r =
 
 ## 8. 已确认的问题
 
-### 8.1 `current_thread::is_main()` 恒为 true
-
-```cpp
-bool is_main() noexcept { return id() == detail::get_tid(); }
-```
-
-`id()` 返回**缓存的** tid（本线程首次访问时取的那个），`get_tid()` 是**当场**重新
-`syscall` 拿的。两者都是"当前线程的 tid"，所以这个比较**永远相等**。
-
-实测：
-
-```
-main 线程: is_main()=1 tid=106076
-子线程:   is_main()=1 tid=106077   <-- 子线程也返回 1
-```
-
-正确的判断应该是拿主线程的 tid 做基准 —— 在 Linux 上主线程的 tid 就等于进程 pid：
-
-```cpp
-bool is_main() noexcept { return id() == ::getpid(); }
-```
-
-（已实测 `getpid() == 主线程的 SYS_gettid`。）
-
-### 8.2 缓存里的 tid 字符串格式串写错
-
-`base/current_thread.cpp` 里：
-
-```cpp
-std::snprintf(tidStr, sizeof(tidStr), "%6ld" PRId64, tid);
-```
-
-`PRId64` 在 64 位 Linux 上展开成 `"ld"`，拼起来的格式串是 `"%6ldld"` —— 末尾多出
-两个字母。实测输出：
-
-```
-当前代码: [106077ld]
-正确写法: [106077]      // "%6" PRId64
-```
-
-`tidStr` 目前没有任何调用方，所以这个 bug 还没暴露。
-
-### 8.3 其余注意事项
+### 8.1 其余注意事项
 
 | 位置 | 事项 |
 | --- | --- |
@@ -263,7 +223,7 @@ std::snprintf(tidStr, sizeof(tidStr), "%6ld" PRId64, tid);
 | `thread.cpp` | 线程体异常被 `catch(...)` 吞掉，只记日志 |
 | `bounded_blocking_queue.h` | `max_size_ == 0` 时 `is_full_locked()` 恒为 true，`push()` 会永久阻塞（无参数校验） |
 | `bounded_blocking_queue.h` | `try_pop_for()` 在"已 stop 且队列非空"时返回 `nullopt`，会丢掉一个元素 |
-| `current_thread.cpp` | 保留了 `_WIN32` 分支，与本项目"只维护 Linux"的定位不符（`deps/common/README.md` 记忆项） |
+| `current_thread.cpp` | `_WIN32` 分支是刻意保留的：`deps/common` 是跨平台组件库，MOBAN 仓库自身只维护 Linux |
 | `demangle.h` | 传入 `nullptr` 是未定义行为 |
 
 ---
@@ -280,10 +240,10 @@ std::snprintf(tidStr, sizeof(tidStr), "%6ld" PRId64, tid);
 | `thread_pool_test.cpp` | 5 | 启停、任务顺序、并发提交、任务抛异常、停止后投递被拒 |
 | `timestamp_test.cpp` | 25 | 构造、比较、格式化、时间差、边界值 |
 | `demangle_test.cpp` | 2 | `demangle` / `try_demangle` |
+| `current_thread_test.cpp` | 5 | `id()` 与实时 tid 一致、`is_main()` 在主线程为真/子线程为假、线程名读写与截断 |
 
 **没有测试的**：
 
-- **`current_thread`** —— 完全没有单测，所以 §8.1 和 §8.2 两个 bug 一直没被发现
 - `Thread` —— 没有独立测试（通过 `thread_pool_test` 间接覆盖）
 - `BlockingQueue` 的多生产者多消费者只在 `block_queue_test` 里有，
   `BoundedBlockingQueue` 的并发测试也只覆盖了基本路径
