@@ -67,14 +67,15 @@ class TempDir {
 };
 
 mode_t FileMode(const std::string& path) {
-  struct stat st {};
+  struct stat st{};
   EXPECT_EQ(0, ::stat(path.c_str(), &st)) << path;
   return st.st_mode & 07777;
 }
 
 // 断言异常消息里带上了路径和失败原因。
 void ExpectSystemError(const std::string& path, const std::string& action,
-                        const std::string& reason, const std::function<void()>& fn) {
+                       const std::string& reason,
+                       const std::function<void()>& fn) {
   try {
     fn();
     FAIL() << "expected std::system_error";
@@ -173,7 +174,8 @@ TEST_F(FileUtilsTest, EmptyFileHasZeroSize) {
 
 TEST_F(FileUtilsTest, FileSizeOfMissingFileThrowsWithPath) {
   const std::string path = file("missing.txt");
-  ExpectSystemError(path, "cannot get size of", "", [&] { (void)file_size(path); });
+  ExpectSystemError(path, "cannot get size of", "",
+                    [&] { (void)file_size(path); });
 }
 
 // ==================== 读 ====================
@@ -222,7 +224,7 @@ TEST_F(FileUtilsTest, ReadsEmptyFileAsBytes) {
 TEST_F(FileUtilsTest, ReadMissingFileThrowsWithPath) {
   const std::string path = file("missing.txt");
   ExpectSystemError(path, "cannot open file", "No such file or directory",
-                     [&] { (void)read_file(path); });
+                    [&] { (void)read_file(path); });
 }
 
 // 非普通文件也要能读：设备文件和 /proc 下的伪文件都是合法的读取目标。
@@ -238,7 +240,7 @@ TEST_F(FileUtilsTest, ReadsProcFile) {
 
 TEST_F(FileUtilsTest, ReadDirectoryThrows) {
   ExpectSystemError(dir(), "cannot read file", "Is a directory",
-                     [&] { (void)read_file(dir()); });
+                    [&] { (void)read_file(dir()); });
 }
 
 // 权限不足时错误信息要说明真实原因，不能只说一个笼统的 I/O 错误。
@@ -250,7 +252,7 @@ TEST_F(FileUtilsTest, ReadWithoutPermissionReportsPermissionDenied) {
   ASSERT_EQ(0, ::chmod(path.c_str(), 0));
 
   ExpectSystemError(path, "cannot open file", "Permission denied",
-                     [&] { (void)read_file(path); });
+                    [&] { (void)read_file(path); });
 }
 
 // ==================== 写 ====================
@@ -284,7 +286,7 @@ TEST_F(FileUtilsTest, WriteBytesCreatesFile) {
 TEST_F(FileUtilsTest, WriteToMissingDirectoryThrowsWithPath) {
   const std::string path = file("no_such_dir/a.txt");
   ExpectSystemError(path, "cannot open file", "No such file or directory",
-                     [&] { write_file(path, "hello"); });
+                    [&] { write_file(path, "hello"); });
 }
 
 TEST_F(FileUtilsTest, WriteKeepsExistingFilePermissions) {
@@ -326,8 +328,8 @@ TEST_F(FileUtilsTest, AtomicWriteLeavesNoTemporaryFilesBehind) {
 TEST_F(FileUtilsTest, AtomicWriteToMissingDirectoryThrowsWithPath) {
   const std::string path = file("no_such_dir/a.txt");
   ExpectSystemError(path, "cannot create temporary file for",
-                     "No such file or directory",
-                     [&] { write_file_atomic(path, "hello"); });
+                    "No such file or directory",
+                    [&] { write_file_atomic(path, "hello"); });
 }
 
 // 目标文件名很长时，临时文件名也必须留在 NAME_MAX 之内。
@@ -361,7 +363,7 @@ TEST_F(FileUtilsTest, FailedAtomicWriteKeepsOriginalContent) {
   ASSERT_EQ(0, ::mkdir(directory_path.c_str(), 0755));
 
   ExpectSystemError(directory_path, "cannot replace file", "",
-                     [&] { write_file_atomic(directory_path, "x"); });
+                    [&] { write_file_atomic(directory_path, "x"); });
 
   EXPECT_EQ("original", read_file(path));
   EXPECT_EQ(2u, list_directory(dir()).size());
@@ -478,11 +480,11 @@ TEST_F(FileUtilsTest, ListDirectoryOfFileThrowsWithPath) {
   write_file(path, "a");
 
   ExpectSystemError(path, "cannot list directory", "Not a directory",
-                     [&] { (void)list_directory(path); });
+                    [&] { (void)list_directory(path); });
 }
 
 TEST_F(FileUtilsTest, ListDirectoryOfMissingPathThrowsWithPath) {
   const std::string path = file("no_such_dir");
   ExpectSystemError(path, "cannot list directory", "No such file or directory",
-                     [&] { (void)list_directory(path); });
+                    [&] { (void)list_directory(path); });
 }
