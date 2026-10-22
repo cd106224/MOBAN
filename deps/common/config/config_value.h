@@ -9,6 +9,8 @@
 #include <variant>
 #include <vector>
 
+namespace common::config {
+
 class ConfigError : public std::runtime_error {
  public:
   explicit ConfigError(const std::string& what) : std::runtime_error(what) {}
@@ -83,3 +85,5 @@ class ConfigValue {
   Storage value_ = std::monostate{};
   std::string path_;
 };
+
+}  // namespace common::config

@@ -13,6 +13,8 @@
 //   2. 新建 config_xxx.cpp 实现它；
 //   3. 在 parse_config() 里加一个分支，同时在 ConfigFormat 里加一个枚举项。
 
+namespace common::config {
+
 // Json 后端：把 JSON 文本转成 ConfigValue 树，失败抛 ConfigError。
 ConfigValue parse_json(std::string_view content);
 
@@ -21,3 +23,5 @@ ConfigValue parse_config(std::string_view content, ConfigFormat format);
 
 // 从文件扩展名推断格式，认不出来抛 ConfigError。
 ConfigFormat config_format_from_extension(std::string_view path);
+
+}  // namespace common::config

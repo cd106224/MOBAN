@@ -6,6 +6,11 @@
 #include <string>
 #include <vector>
 
+using common::config::Config;
+using common::config::ConfigError;
+using common::config::ConfigFormat;
+using common::config::ConfigValue;
+
 namespace {
 
 // 样例配置文件在 tests/data 下，路径由 CMake 以编译期宏传进来，
