@@ -140,7 +140,7 @@ void ReadInto(const std::string& path, Sink& sink) {
   try {
     // 大小用来预留容量。只对普通文件有意义：设备、管道、/proc 伪文件
     // 的 st_size 是 0 或不可用，预留不了也不影响正确性。
-    struct stat st {};
+    struct stat st{};
     if (::fstat(file.get(), &st) == 0 && S_ISREG(st.st_mode) &&
         st.st_size > 0) {
       sink.reserve(static_cast<size_t>(st.st_size));
@@ -186,7 +186,7 @@ void WriteAll(int fd, std::string_view content, const std::string& path) {
 // setuid / setgid 位不继承：原子替换写入的是新内容，保留 setuid 会让
 // 新内容以特权身份运行。
 bool TargetMode(const std::string& path, mode_t& mode) noexcept {
-  struct stat st {};
+  struct stat st{};
   if (::lstat(path.c_str(), &st) != 0) return false;
   if (!S_ISREG(st.st_mode)) return false;
   mode = st.st_mode & 0777;
@@ -198,8 +198,7 @@ bool TargetMode(const std::string& path, mode_t& mode) noexcept {
 uint64_t RandomBits() noexcept {
   try {
     std::random_device rd;
-    return (static_cast<uint64_t>(rd()) << 32) ^
-           static_cast<uint64_t>(rd());
+    return (static_cast<uint64_t>(rd()) << 32) ^ static_cast<uint64_t>(rd());
   } catch (const std::exception&) {
     // random_device 不可用时退回 pid + 序号，安全性靠后面的
     // dev/ino 校验兜底。
@@ -252,8 +251,7 @@ TempFile CreateTempFile(const std::string& directory, const std::string& name,
   for (int attempt = 0; attempt < 128; ++attempt) {
     const std::string suffix =
         std::to_string(static_cast<uint64_t>(::getpid())) + "." +
-        std::to_string(counter.fetch_add(1)) + "." +
-        HexString(RandomBits());
+        std::to_string(counter.fetch_add(1)) + "." + HexString(RandomBits());
 
     // 整个文件名不能超过 NAME_MAX，否则 open 会以 ENAMETOOLONG 失败。
     // 目标文件名很长时截断前缀，牺牲可读性换正确性。
@@ -280,8 +278,8 @@ TempFile CreateTempFile(const std::string& directory, const std::string& name,
 // 把别人的内容搬到目标位置。比对 dev/ino 能把这种情况挡下来。
 void VerifyTempFile(int fd, const std::string& temp_path,
                     const std::string& target) {
-  struct stat fd_st {};
-  struct stat path_st {};
+  struct stat fd_st{};
+  struct stat path_st{};
   if (::fstat(fd, &fd_st) != 0) {
     ThrowFileError(ErrnoCode(), "cannot stat temporary file for", target);
   }
@@ -379,14 +377,14 @@ void write_file_atomic(const std::string& path, std::string_view content) {
   mode_t target_mode = 0;
   const bool has_target_mode = TargetMode(path, target_mode);
 
-  TempFile temp = CreateTempFile(directory_path, target.filename().string(),
-                                 path);
+  TempFile temp =
+      CreateTempFile(directory_path, target.filename().string(), path);
   TempFileGuard guard(temp.path);
 
   // 临时文件以 0666 创建，内核按 umask 裁剪，这个权限就是"目标不存在时"
   // 新文件该有的权限。必须在收权限之前取。
   mode_t default_mode = 0;
-  struct stat created_st {};
+  struct stat created_st{};
   if (::fstat(temp.fd.get(), &created_st) != 0) {
     ThrowFileError(ErrnoCode(), "cannot stat temporary file for", path);
   }

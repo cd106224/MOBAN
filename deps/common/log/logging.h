@@ -1,6 +1,13 @@
 #pragma once
 
-#include <spdlog/spdlog.h>
+#include <spdlog/logger.h>
+
+// 公共头声明自己的依赖
+#include <functional>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
 namespace common::log {
 enum LoggerType {
