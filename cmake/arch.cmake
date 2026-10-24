@@ -17,9 +17,11 @@ else ()
     message(FATAL_ERROR "Platform ${CMAKE_SYSTEM_PROCESSOR} is not supported")
 endif ()
 
-# 检测编译器类型并设置警告即错误
+# 检测编译器类型并设置警告即错误。
+# 只作用于 C/CXX: nvcc 有自己的 -Werror(带值选项), 把宿主编译器的 -Werror
+# 原样传过去会被它当成 "-Werror <value>", 把后面的 -MD 吃掉直接 fatal。
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(-Werror)
+    add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Werror>)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    add_compile_options(/WX)
+    add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:/WX>)
 endif ()
