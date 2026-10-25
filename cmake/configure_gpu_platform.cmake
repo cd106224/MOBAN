@@ -46,4 +46,21 @@ else ()
     set(PLATFORM_COMPILER "NVCC")
 endif ()
 
+# 对外统一暴露设备后端的头文件路径与运行时库, 供需要用 di/ 的目标按需取用。
+# 之前 CUDA_INCLUDE_DIRS / HIP_INCLUDE_DIRS 只是 set 起来没人用, 导致 di/ 的头
+# 在非 .cu 的编译单元里根本找不到 cuda_runtime.h / hip_runtime.h。
+if (PLATFORM MATCHES "HIP")
+    set(PLATFORM_INCLUDE_DIRS ${HIP_INCLUDE_DIRS})
+    set(PLATFORM_LIBRARIES ${HIP_LIBRARIES})
+else ()
+    set(PLATFORM_INCLUDE_DIRS ${CUDAToolkit_INCLUDE_DIRS})
+    if (TARGET CUDA::cudart)
+        set(PLATFORM_LIBRARIES CUDA::cudart)
+    else ()
+        set(PLATFORM_LIBRARIES ${CUDAToolkit_LIBRARIES})
+    endif ()
+endif ()
+
 message(STATUS "Configured Platform: ${PLATFORM}")
+message(STATUS "  device include dirs: ${PLATFORM_INCLUDE_DIRS}")
+message(STATUS "  device libraries   : ${PLATFORM_LIBRARIES}")

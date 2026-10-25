@@ -16,8 +16,9 @@ function(_add_gtest TEST_SOURCES)
         set(_add_gtest_LINK_LIBS ${DEFAULT_LIBS})
     endif ()
     foreach (test_source ${TEST_SOURCES})
-        get_filename_component(test_filename ${test_source} NAME)
-        string(REPLACE ".cpp" "" test_name ${test_filename})
+        # 源文件可能是 .cpp / .cc / .cu, 用 NAME_WE 去掉扩展名。
+        # 原来只剥 ".cpp", .cu 会生成带点的非法 target 名。
+        get_filename_component(test_name ${test_source} NAME_WE)
         add_executable(${test_name} EXCLUDE_FROM_ALL ${test_source})
         add_dependencies(build-tests ${test_name})
         add_dependencies(check-tests ${test_name})
